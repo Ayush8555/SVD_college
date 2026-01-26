@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Poppins', sans-serif;
+
+  --color-primary-50: #e6f0ff;
+  --color-primary-100: #b3d1ff;
+  --color-primary-200: #80b3ff;
+  --color-primary-300: #4d94ff;
+  --color-primary-400: #1a75ff;
+  --color-primary-500: #0056e0;
+  --color-primary-600: #0044ad;
+  --color-primary-700: #00337a;
+  --color-primary-800: #002247;
+  --color-primary-900: #001114;
+
+  --color-accent-50: #fff5e6;
+  --color-accent-100: #ffe0b3;
+  --color-accent-200: #ffcc80;
+  --color-accent-300: #ffb74d;
+  --color-accent-400: #ffa31a;
+  --color-accent-500: #ff8f00;
+  --color-accent-600: #cc7200;
+  --color-accent-700: #995600;
+  --color-accent-800: #663900;
+  --color-accent-900: #331d00;
+}
+
+@layer base {
+  body {
+    @apply font-sans text-gray-900 bg-gray-50;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
+  }
+  
+  .btn-secondary {
+    @apply bg-white hover:bg-gray-50 text-primary-600 font-medium py-2 px-6 rounded-lg border-2 border-primary-600 transition-all duration-200;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 p-6;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all;
+  }
+  
+  .label {
+    @apply block text-sm font-medium text-gray-700 mb-2;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-area, #printable-area * {
+    visibility: visible;
+  }
+  #printable-area {
+    visibility: visible !important;
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 9999 !important;
+    background-color: white !important;
+  }
+  /* Hide standard no-print elements */
+  .no-print {
+    display: none !important;
+  }
+}
