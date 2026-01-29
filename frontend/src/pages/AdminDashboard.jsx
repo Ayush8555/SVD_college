@@ -11,6 +11,8 @@ import StudentManagementTab from '../components/StudentManagementTab';
 import ResultPublishingTab from '../components/ResultPublishingTab';
 import StudentPromotionTab from '../components/StudentPromotionTab';
 import ReportsTab from '../components/ReportsTab';
+import AdminInquiries from './AdminInquiries';
+import NoticesTab from '../components/admin/NoticesTab';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
@@ -36,17 +38,35 @@ const AdminDashboard = () => {
   };
 
   const menuItems = [
-      { id: 'overview', label: 'Overview', icon: '📊' },
-      { id: 'students', label: 'Student Management', icon: '👥' },
-      { id: 'upload', label: 'Upload Results', icon: '📤' },
-      { id: 'results', label: 'Manage Results', icon: '📝' },
-      { id: 'publishing', label: 'Result Publishing', icon: '🔓' },
-      { id: 'promote', label: 'Promote Students', icon: '🚀' },
-      { id: 'reports', label: 'Reports Center', icon: '📈' },
-      { id: 'queries', label: 'Help Desk', icon: '💬' },
+      { id: 'overview', label: 'Overview', iconType: 'chart' },
+      { id: 'students', label: 'Student Management', iconType: 'users' },
+      { id: 'upload', label: 'Upload Results', iconType: 'upload' },
+      { id: 'results', label: 'Manage Results', iconType: 'document' },
+      { id: 'publishing', label: 'Result Publishing', iconType: 'publish' },
+      { id: 'promote', label: 'Promote Students', iconType: 'promote' },
+      { id: 'reports', label: 'Reports Center', iconType: 'reports' },
+      { id: 'queries', label: 'Help Desk', iconType: 'help' },
+      { id: 'inquiries', label: 'Admission Inquiries', iconType: 'clipboard' },
+      { id: 'documents', label: 'Document Verification', iconType: 'file', isLink: true, href: '/admin/documents' },
+      { id: 'notices', label: 'Circulars & Notices', iconType: 'bell' },
   ];
 
-  return (
+  const getMenuIcon = (iconType) => {
+    const icons = {
+      chart: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>,
+      users: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>,
+      upload: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>,
+      document: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
+      publish: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" /></svg>,
+      promote: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>,
+      reports: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
+      help: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>,
+      clipboard: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>,
+      file: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>,
+      bell: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+    };
+    return icons[iconType] || null;
+  };  return (
     <div className="min-h-screen bg-gray-50 flex font-sans">
       {/* Sidebar */}
       <aside
@@ -70,18 +90,32 @@ const AdminDashboard = () => {
         {/* Navigation */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             {menuItems.map(item => (
-                <button
-                    key={item.id}
-                    onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
-                        activeTab === item.id 
-                        ? 'bg-primary-50 text-primary-700' 
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                >
-                    <span className="text-lg">{item.icon}</span>
-                    <span>{item.label}</span>
-                </button>
+                item.isLink ? (
+                    <button
+                        key={item.id}
+                        onClick={() => { navigate(item.href); setSidebarOpen(false); }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors text-gray-700 hover:bg-gray-100"
+                    >
+                        <span>{getMenuIcon(item.iconType)}</span>
+                        <span>{item.label}</span>
+                        <svg className="w-4 h-4 ml-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </button>
+                ) : (
+                    <button
+                        key={item.id}
+                        onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                            activeTab === item.id 
+                            ? 'bg-primary-50 text-primary-700' 
+                            : 'text-gray-700 hover:bg-gray-100'
+                        }`}
+                    >
+                        <span>{getMenuIcon(item.iconType)}</span>
+                        <span>{item.label}</span>
+                    </button>
+                )
             ))}
         </nav>
 
@@ -134,6 +168,8 @@ const AdminDashboard = () => {
                 {activeTab === 'promote' && <StudentPromotionTab />}
                 {activeTab === 'reports' && <ReportsTab />}
                 {activeTab === 'queries' && <QueriesTab />}
+                {activeTab === 'inquiries' && <AdminInquiries />}
+                {activeTab === 'notices' && <NoticesTab />}
             </div>
         </main>
       </div>
@@ -173,10 +209,10 @@ const OverviewTab = ({ setActiveTab }) => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard title="Total Students" value={stats.totalStudents} icon="👨‍🎓" color="bg-primary-50 text-primary-700 border-primary-200" />
-                <StatCard title="Total Results" value={stats.totalResults} icon="📝" color="bg-blue-50 text-blue-700 border-blue-200" />
-                <StatCard title="Published" value={stats.publishedResults} icon="✅" color="bg-green-50 text-green-700 border-green-200" />
-                <StatCard title="Pending Review" value={stats.pendingResults} icon="️⏳" color="bg-amber-50 text-amber-700 border-amber-200" />
+                <StatCard title="Total Students" value={stats.totalStudents} iconType="students" color="bg-primary-50 text-primary-700 border-primary-200" />
+                <StatCard title="Total Results" value={stats.totalResults} iconType="results" color="bg-blue-50 text-blue-700 border-blue-200" />
+                <StatCard title="Published" value={stats.publishedResults} iconType="published" color="bg-green-50 text-green-700 border-green-200" />
+                <StatCard title="Pending Review" value={stats.pendingResults} iconType="pending" color="bg-amber-50 text-amber-700 border-amber-200" />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -186,7 +222,9 @@ const OverviewTab = ({ setActiveTab }) => {
                             onClick={() => setActiveTab('upload')}
                             className="p-4 border rounded-xl hover:bg-gray-50 transition text-left group"
                          >
-                            <span className="block text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">📤</span>
+                            <span className="block mb-2 group-hover:scale-110 transition-transform duration-200">
+                                <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                            </span>
                             <span className="font-semibold text-gray-900">Upload CSV</span>
                             <span className="block text-xs text-gray-500 mt-1">Bulk upload results</span>
                          </button>
@@ -194,7 +232,9 @@ const OverviewTab = ({ setActiveTab }) => {
                             onClick={() => setActiveTab('publishing')}
                             className="p-4 border rounded-xl hover:bg-gray-50 transition text-left group"
                          >
-                            <span className="block text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">📣</span>
+                            <span className="block mb-2 group-hover:scale-110 transition-transform duration-200">
+                                <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>
+                            </span>
                             <span className="font-semibold text-gray-900">Announce Results</span>
                             <span className="block text-xs text-gray-500 mt-1">Publish pending results</span>
                          </button>
@@ -226,17 +266,34 @@ const OverviewTab = ({ setActiveTab }) => {
     );
 };
 
-const StatCard = ({ title, value, icon, color }) => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 flex items-center space-x-4 hover:shadow-md transition-shadow">
-        <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-xl border ${color}`}>
-            {icon}
+const StatCard = ({ title, value, iconType, color }) => {
+    const getIcon = () => {
+        switch(iconType) {
+            case 'students':
+                return <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" /></svg>;
+            case 'results':
+                return <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
+            case 'published':
+                return <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>;
+            case 'pending':
+                return <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+            default:
+                return null;
+        }
+    };
+    
+    return (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 flex items-center space-x-4 hover:shadow-md transition-shadow">
+            <div className={`w-12 h-12 rounded-lg flex items-center justify-center border ${color}`}>
+                {getIcon()}
+            </div>
+            <div>
+                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{title}</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1 font-mono">{value}</p>
+            </div>
         </div>
-        <div>
-            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{title}</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1 font-mono">{value}</p>
-        </div>
-    </div>
-);
+    );
+};
 
 const UploadResultsTab = () => {
     const [mode, setMode] = useState('bulk'); // 'bulk' or 'manual'
@@ -325,7 +382,7 @@ const BulkUploadPanel = () => {
                     <p className="mt-4 text-xs text-gray-400 uppercase tracking-wide font-medium">Supported Formats: csv, xlsx</p>
                     {file && (
                         <div className="mt-6 flex items-center gap-3 bg-primary-50 px-4 py-2 rounded-lg border border-primary-100 text-sm text-primary-800 font-medium animate-fade-in">
-                            <span className="text-xl">📄</span> 
+                            <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                             {file.name}
                             <button onClick={() => setFile(null)} className="ml-2 text-primary-400 hover:text-primary-700">✕</button>
                         </div>
@@ -348,7 +405,11 @@ const BulkUploadPanel = () => {
                 <div className={`rounded-xl p-6 ${status?.type === 'success' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
                     {status && (
                         <div className="flex items-start">
-                             <span className="text-xl mr-3">{status.type === 'success' ? '🎉' : '⚠️'}</span>
+                             {status.type === 'success' ? (
+                                 <svg className="w-6 h-6 mr-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                             ) : (
+                                 <svg className="w-6 h-6 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                             )}
                              <div>
                                  <h3 className={`font-bold ${status.type === 'success' ? 'text-green-800' : 'text-red-800'}`}>
                                      {status.type === 'success' ? 'Upload Successful' : 'Processing Failed'}

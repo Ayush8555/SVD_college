@@ -131,10 +131,15 @@ export const verifyOTP = async (req, res) => {
  */
 export const loginStudent = async (req, res) => {
     try {
-        const { identifier, password } = req.body; // rollNumber or Email
+        const { identifier, rollNumber, password } = req.body; // rollNumber or Email
+        const loginId = identifier || rollNumber;
+
+        if (!loginId || !password) {
+            return res.status(400).json({ success: false, message: 'Please provide Roll Number/Email and Password' });
+        }
 
         const student = await Student.findOne({
-            $or: [{ email: identifier }, { rollNumber: identifier.toUpperCase() }]
+            $or: [{ email: loginId }, { rollNumber: loginId.toUpperCase() }]
         }).select('+password');
 
         if (!student) {

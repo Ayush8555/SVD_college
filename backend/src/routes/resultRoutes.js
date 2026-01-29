@@ -20,11 +20,13 @@ router.get('/my', protectStudent, getMyResults);
  */
 router.get('/my/:id', protectStudent, getSingleMyResult);
 
+import { cacheResult } from '../middleware/cacheMiddleware.js';
+
 /**
  * @route   POST /api/results/check
  * @desc    Public endpoint to check results with Roll No + DOB
  * @access  Public (Rate Limited)
  */
-router.post('/check', strictResultLimiter, checkResult);
+router.post('/check', strictResultLimiter, cacheResult, checkResult);
 
 export default router;

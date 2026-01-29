@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { motion } from 'framer-motion';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import Card from '../components/ui/Card';
+import Background3D from '../components/Background3D';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
@@ -37,120 +38,110 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50 font-sans flex flex-col">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-16 overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-0 right-0 w-96 h-96 bg-gray-600 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 w-80 h-80 bg-gray-700 rounded-full blur-3xl"></div>
-          </div>
-          <div className="max-w-4xl mx-auto px-4 relative z-10">
-              <Link to="/" className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors mb-6 group">
-                  <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div className="min-h-screen bg-slate-900 font-sans flex items-center justify-center relative overflow-hidden">
+      <div className="fixed inset-0 z-0">
+         <Background3D />
+      </div>
+
+      <div className="relative z-10 w-full max-w-md px-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="mb-8 text-center"
+          >
+              <Link to="/" className="inline-flex items-center gap-2 text-blue-200 hover:text-white transition-colors mb-8 group backdrop-blur-sm bg-white/5 py-2 px-4 rounded-full border border-white/10">
+                  <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
                   <span className="text-sm font-medium">Back to Home</span>
               </Link>
-              <div className="text-center">
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-xs font-bold uppercase tracking-widest mb-4">
-                      <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse"></span>
-                      Restricted Access
-                  </div>
-                  <h1 className="text-4xl md:text-5xl font-heading font-extrabold mb-3 tracking-tight">
-                      Administrator Login
-                  </h1>
-                  <p className="text-gray-300 text-lg max-w-2xl mx-auto">
-                      Secure portal for authorized personnel only
-                  </p>
-              </div>
-          </div>
-          <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50" style={{ clipPath: 'ellipse(70% 100% at 50% 100%)' }}></div>
-      </div>
+              
+              <h1 className="text-4xl font-heading font-extrabold text-white mb-2 text-shadow-lg">Admin Portal</h1>
+              <p className="text-blue-200">Restricted access for authorized personnel</p>
+          </motion.div>
 
-      {/* Main Content */}
-      <div className="flex-grow flex items-start justify-center py-12 px-4 sm:px-6 -mt-8">
-        <div className="w-full max-w-md">
-          <Card className="shadow-2xl bg-white border-t-4 border-t-gray-800 relative overflow-hidden">
-            {/* Decorative corner accent */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-gray-100 to-transparent opacity-50 rounded-bl-full"></div>
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-3xl shadow-2xl relative overflow-hidden"
+          >
+            {/* Reflective shine */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent opacity-50"></div>
             
-            <div className="relative z-10 p-8">
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 text-gray-800 mb-4 border-2 border-gray-200">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-heading font-bold text-gray-900 mb-2">
-                  Secure Access
-                </h2>
-                <p className="text-gray-600 text-sm">
-                  Enter your administrative credentials
-                </p>
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 text-white mb-4 shadow-lg border border-slate-600">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
               </div>
+              <h2 className="text-xl font-bold text-white">Secure Login</h2>
+            </div>
 
-              <form className="space-y-6" onSubmit={handleSubmit}>
-                <Input
-                    id="employeeId"
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              <div className="space-y-2">
+                 <label className="text-sm font-medium text-blue-100 ml-1">Admin ID</label>
+                 <input
                     type="text"
-                    label="Admin ID"
-                    placeholder="SVD2601"
                     value={employeeId}
                     onChange={(e) => setEmployeeId(e.target.value)}
                     required
-                    className="bg-gray-50 focus:bg-white transition-colors"
-                />
+                    placeholder="SVD2601"
+                    className="w-full px-4 py-3 bg-white/5 border border-blue-200/20 rounded-xl text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+                 />
+              </div>
 
-                <Input
-                    id="password"
+              <div className="space-y-2">
+                 <label className="text-sm font-medium text-blue-100 ml-1">Password</label>
+                 <input
                     type="password"
-                    label="Password"
-                    placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="bg-gray-50 focus:bg-white transition-colors"
-                />
-
-                {error && (
-                    <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg animate-fade-in">
-                        <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-red-100 flex items-center justify-center">
-                                <svg className="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-bold text-red-800">Authentication Failed</h3>
-                                <p className="text-sm text-red-700 mt-1">{error}</p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                <Button
-                  type="submit"
-                  className="w-full py-4 text-base font-bold shadow-xl bg-gray-900 hover:bg-gray-800 transition-all hover:shadow-2xl hover:-translate-y-0.5"
-                  isLoading={loading}
-                >
-                  {loading ? 'Authenticating...' : 'Secure Login'}
-                </Button>
-              </form>
-              
-              <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-                 <p className="text-xs text-gray-400">
-                    © {new Date().getFullYear()} SVD Gurukul Mahavidyalaya. <br/> System maintained by IT Cell.
-                 </p>
+                    placeholder="••••••••"
+                    className="w-full px-4 py-3 bg-white/5 border border-blue-200/20 rounded-xl text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+                 />
               </div>
-            </div>
-          </Card>
 
-          <div className="mt-6 text-center">
-            <p className="text-xs text-gray-400 uppercase tracking-widest">
-              Administration Portal
-            </p>
-          </div>
-        </div>
+              {error && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="bg-red-500/10 border border-red-500/50 p-3 rounded-xl flex items-center gap-3 backdrop-blur-sm"
+                  >
+                      <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-sm text-red-200">{error}</p>
+                  </motion.div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full py-4 text-base font-bold rounded-xl shadow-lg transition-all ${
+                    loading 
+                    ? 'bg-slate-700 text-slate-400 cursor-not-allowed' 
+                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98]'
+                }`}
+              >
+                {loading ? (
+                    <div className="flex items-center justify-center gap-2">
+                        <svg className="animate-spin h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Authenticating...
+                    </div>
+                ) : 'Access Dashboard'}
+              </button>
+            </form>
+            
+            <div className="mt-8 pt-6 border-t border-white/10 text-center">
+                <p className="text-xs text-blue-300/60">
+                System secured by 256-bit encryption. <br/> Unauthorized access is a punishable offense.
+                </p>
+            </div>
+          </motion.div>
       </div>
     </div>
   );

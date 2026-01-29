@@ -43,9 +43,9 @@ const StudentDashboard = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                     {/* Sidebar Nav */}
                     <div className="md:col-span-1 space-y-2">
-                        <NavButton active={activeTab === 'results'} onClick={() => setActiveTab('results')} icon="📚" label="Examination Results" />
-                        <NavButton active={activeTab === 'help'} onClick={() => setActiveTab('help')} icon="💬" label="Help Center" />
-                        <NavButton active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} icon="👤" label="My Profile" />
+                        <NavButton active={activeTab === 'results'} onClick={() => setActiveTab('results')} iconType="results" label="Examination Results" />
+                        <NavButton active={activeTab === 'help'} onClick={() => setActiveTab('help')} iconType="help" label="Help Center" />
+                        <NavButton active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} iconType="profile" label="My Profile" />
                     </div>
 
                     {/* Content Area */}
@@ -60,17 +60,32 @@ const StudentDashboard = () => {
     );
 };
 
-const NavButton = ({ active, onClick, icon, label }) => (
-    <button 
-        onClick={onClick}
-        className={`w-full flex items-center gap-3 px-4 py-3 rounded-r-full border-l-4 transition-all font-medium text-left text-sm ${
-            active ? 'bg-white text-primary-900 shadow-sm border-primary-600' : 'text-gray-600 border-transparent hover:bg-white/60 hover:text-primary-800'
-        }`}
-    >
-        <span className="text-xl opacity-80">{icon}</span>
-        {label}
-    </button>
-);
+const NavButton = ({ active, onClick, iconType, label }) => {
+    const getIcon = () => {
+        switch(iconType) {
+            case 'results':
+                return <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
+            case 'help':
+                return <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>;
+            case 'profile':
+                return <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>;
+            default:
+                return null;
+        }
+    };
+    
+    return (
+        <button 
+            onClick={onClick}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-r-full border-l-4 transition-all font-medium text-left text-sm ${
+                active ? 'bg-white text-primary-900 shadow-sm border-primary-600' : 'text-gray-600 border-transparent hover:bg-white/60 hover:text-primary-800'
+            }`}
+        >
+            <span className="opacity-80">{getIcon()}</span>
+            {label}
+        </button>
+    );
+};
 
 /* --- Sub Components --- */
 
@@ -245,8 +260,8 @@ const ProfileTab = ({ user }) => (
                     <div className="h-24 bg-primary-900 w-full relative">
                         <div className="absolute inset-0 bg-pattern-grid opacity-10"></div>
                         <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
-                            <div className="w-24 h-24 bg-white rounded-full border-4 border-white shadow-md flex items-center justify-center text-3xl overflow-hidden">
-                                {user.gender === 'Female' ? '👩‍🎓' : '👨‍🎓'}
+                            <div className="w-24 h-24 bg-white rounded-full border-4 border-white shadow-md flex items-center justify-center text-2xl font-bold text-primary-600 overflow-hidden">
+                                {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
                             </div>
                         </div>
                     </div>

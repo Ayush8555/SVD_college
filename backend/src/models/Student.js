@@ -157,9 +157,9 @@ const studentSchema = new mongoose.Schema(
 );
 
 // Encrypt password using bcrypt
-studentSchema.pre('save', async function (next) {
+studentSchema.pre('save', async function () {
   if (!this.isModified('password')) {
-    next();
+    return;
   }
   // Only hash if password exists (might be created via Admin without password initially)
   if (this.password) {
