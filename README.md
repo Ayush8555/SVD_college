@@ -93,19 +93,6 @@ npm run dev
 
 Frontend will run on: `http://localhost:5173`
 
-## 🔑 Demo Credentials
-
-### Admin Login
-- **Email:** admin@gec-pune.edu.in
-- **Password:** Admin@123
-
-### Student Login
-- **Email:** rahul.sharma@gec-pune.edu.in
-- **Password:** 20050315 (YYYYMMDD format from DOB)
-
-### Public Result Check
-- **Roll Number:** GEC2023001
-- **Date of Birth:** 2005-03-15
 
 ## 📁 Project Structure
 
