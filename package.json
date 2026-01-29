@@ -1,0 +1,15 @@
+{
+  "name": "college-result-system-root",
+  "version": "1.0.0",
+  "description": "Root orchestrator for College Result System deployment",
+  "scripts": {
+    "build": "bash production_build.sh",
+    "start": "cd backend && npm start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
