@@ -5,17 +5,9 @@
 echo "🚀 Starting Production Build Process..."
 
 # 1. Install Dependencies
-echo "📦 Installing Dependencies..."
-# Root (if any)
+echo "📦 Installing Dependencies (via Workspaces)..."
 npm install
-# Frontend
-cd frontend
-npm install
-cd ..
-# Backend (CRITICAL for Render)
-cd backend
-npm install
-cd ..
+
 
 # 2. Build Frontend
 echo "🏗️  Building Frontend..."

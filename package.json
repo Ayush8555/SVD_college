@@ -1,10 +1,16 @@
 {
   "name": "college-result-system-root",
   "version": "1.0.0",
-  "description": "Root orchestrator for College Result System deployment",
+  "description": "Root orchestrator for College Result System",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "scripts": {
     "build": "bash production_build.sh",
-    "start": "cd backend && npm start"
+    "start": "cd backend && npm start",
+    "postinstall": "echo 'Workspaces installed'"
   },
   "keywords": [],
   "author": "",
