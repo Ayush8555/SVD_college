@@ -91,10 +91,7 @@ import documentRoutes from './routes/documentRoutes.js';
 import adminDocumentRoutes from './routes/adminDocumentRoutes.js';
 import { initEncryptionService } from './services/encryptionService.js';
 
-import { initRedis } from './config/redis.js';
-
 // Initialize services
-initRedis();
 initEncryptionService().catch(err => {
   console.error('⚠️ Encryption service failed to initialize:', err.message);
   console.log('Document upload features will be unavailable until keys are configured.');
