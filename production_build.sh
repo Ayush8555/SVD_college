@@ -6,8 +6,14 @@ echo "🚀 Starting Production Build Process..."
 
 # 1. Install Dependencies
 echo "📦 Installing Dependencies..."
+# Root (if any)
 npm install
+# Frontend
 cd frontend
+npm install
+cd ..
+# Backend (CRITICAL for Render)
+cd backend
 npm install
 cd ..
 
@@ -25,10 +31,4 @@ else
   exit 1
 fi
 
-# 4. Start/Restart Backend with PM2
-echo "🔄 Starting/Reloading Application with PM2..."
-cd backend
-npx pm2 start ecosystem.config.cjs --env production
-
-echo "✨ Deployment Complete! Application running on port 5001"
-npx pm2 status
+echo "✨ Build Complete! Ready for Render to start."
