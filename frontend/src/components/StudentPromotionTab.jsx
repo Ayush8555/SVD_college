@@ -42,7 +42,7 @@ const StudentPromotionTab = () => {
             
             <Card className="p-8">
                 <div className="flex items-center gap-4 mb-6 bg-blue-50 p-4 rounded-lg text-blue-800 border border-blue-100">
-                    <span className="text-2xl">🚀</span>
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
                     <div>
                         <h3 className="font-bold">Batch Promotion</h3>
                         <p className="text-sm">Move an entire batch of students to the next semester with one click.</p>

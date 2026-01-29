@@ -21,9 +21,10 @@ export const loginAdmin = async (req, res) => {
     const admin = await Admin.findOne({ employeeId }).select('+password');
 
     if (!admin) {
+      console.log(`Admin Login Failed: Admin not found for ${employeeId}`);
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials',
+        message: 'Invalid credentials. Admin ID not found.',
       });
     }
 
