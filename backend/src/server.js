@@ -50,6 +50,9 @@ const limiter = rateLimit({
 app.use(compression()); // Compress all responses
 app.use('/api/', limiter);
 
+// Serve uploads folder statically
+app.use('/uploads', express.static(path.join(path.resolve(), 'uploads')));
+
 // Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -89,6 +92,7 @@ app.use('/api/notices', noticeRoutes);
 // Document Verification Routes (Secure Document Upload System)
 import documentRoutes from './routes/documentRoutes.js';
 import adminDocumentRoutes from './routes/adminDocumentRoutes.js';
+import grievanceRoutes from './routes/grievanceRoutes.js';
 import { initEncryptionService } from './services/encryptionService.js';
 
 // Initialize services
@@ -99,6 +103,7 @@ initEncryptionService().catch(err => {
 
 app.use('/api/documents', documentRoutes);
 app.use('/api/admin/documents', adminDocumentRoutes);
+app.use('/api/grievances', grievanceRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
@@ -133,17 +138,46 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5001;
 
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`\n🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
     console.log(`📍 API URL: http://localhost:${PORT}`);
     console.log(`🏥 Health Check: http://localhost:${PORT}/api/health\n`);
   });
+
+  // Graceful Shutdown Logic
+  const gracefulShutdown = () => {
+    console.log('🔄 Received kill signal, shutting down gracefully');
+    server.close(() => {
+      console.log('✅ Closed out remaining connections');
+      process.exit(0);
+    });
+
+    // Force close if it takes too long
+    setTimeout(() => {
+      console.error('🔴 Could not close connections in time, forcefully shutting down');
+      process.exit(1);
+    }, 10000);
+  };
+
+  process.on('SIGTERM', gracefulShutdown);
+  process.on('SIGINT', gracefulShutdown);
 }
 
-// Handle unhandled promise rejections
+// Handle unhandled promise rejections (log but don't crash)
 process.on('unhandledRejection', (err) => {
   console.error(`❌ Unhandled Rejection: ${err.message}`);
-  process.exit(1);
+  console.error(err.stack);
+  // In production, we log and continue rather than crash
+  // This prevents a single bad request from taking down the entire server
+});
+
+// Handle uncaught exceptions (log but don't crash for non-critical errors)
+process.on('uncaughtException', (err) => {
+  console.error(`💥 Uncaught Exception: ${err.message}`);
+  console.error(err.stack);
+  // For truly critical errors, you might want to gracefully shutdown
+  // But for most cases, logging and continuing is safer
 });
 
 export default app;
+

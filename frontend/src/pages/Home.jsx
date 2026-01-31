@@ -4,7 +4,8 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Background3D from '../components/Background3D';
 import collegeBuildingImg from '../assets/college_building.jpg';
-import NoticeBoard from '../components/NoticeBoard';
+import NoticeSection from '../components/home/NoticeSection';
+import CampusSlideshow from '../components/CampusSlideshow';
 
 const Home = () => {
     const { scrollYProgress } = useScroll();
@@ -31,7 +32,7 @@ const Home = () => {
     };
 
     return (
-        <div className="min-h-screen bg-transparent font-sans flex flex-col overflow-x-hidden relative text-slate-800">
+        <div className="min-h-screen bg-transparent font-sans flex flex-col overflow-x-hidden relative text-slate-800 bg-noise">
             {/* Fixed 3D Background */}
             <div className="fixed inset-0 z-0 bg-slate-900">
                 <Background3D />
@@ -77,24 +78,24 @@ const Home = () => {
                             animate="visible"
                             variants={staggerContainer}
                         >
-                            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-slate-800/50 backdrop-blur-md border border-white/10 text-blue-200 text-xs font-bold uppercase tracking-widest mb-8 shadow-2xl hover:bg-slate-800/70 transition-colors">
-                                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_#34d399]"></span>
+                            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 text-blue-100 text-xs font-medium tracking-[0.2em] uppercase mb-10 shadow-xl">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>
                                 Official College Portal
-                                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_#34d399]"></span>
                             </motion.div>
 
-                            <motion.h1 variants={fadeInUp} className="text-5xl md:text-7xl lg:text-9xl font-heading font-extrabold mb-8 tracking-tighter leading-none text-white drop-shadow-2xl">
-                                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-white to-blue-300 pb-2">
+                            <motion.h1 variants={fadeInUp} className="text-5xl md:text-7xl lg:text-9xl font-heading font-black mb-8 tracking-tighter leading-[0.9] text-white drop-shadow-2xl">
+                                <span className="block text-transparent bg-clip-text bg-gradient-to-br from-white via-blue-100 to-blue-200">
                                     SVD Gurukul
                                 </span>
-                                <span className="block text-4xl md:text-6xl text-blue-200/80 font-light tracking-wide mt-2">
+                                <span className="block text-4xl md:text-6xl text-blue-200/90 font-serif italic tracking-normal mt-4">
                                     Mahavidyalaya
                                 </span>
                             </motion.h1>
 
-                            <motion.div variants={fadeInUp} className="inline-block backdrop-blur-md bg-slate-900/30 rounded-3xl px-8 py-6 mb-12 border border-white/10 max-w-4xl mx-auto shadow-2xl">
-                                <p className="text-xl md:text-2xl text-blue-100 font-light leading-relaxed">
-                                    Empowering Minds, Shaping Futures in <span className="font-semibold text-amber-400 drop-shadow-md">Dumduma, Unchgaon, Jaunpur</span> since 2010.
+                            <motion.div variants={fadeInUp} className="inline-block relative px-8 py-6 mb-12 max-w-3xl mx-auto">
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent blur-xl"></div>
+                                <p className="relative text-xl md:text-2xl text-blue-100/90 font-light leading-relaxed">
+                                    Empowering Minds, Shaping Futures inside the heart of <span className="font-medium text-white decoration-amber-500/50 underline decoration-2 underline-offset-4">Dumduma, Jaunpur</span> since 2010.
                                 </p>
                             </motion.div>
 
@@ -141,13 +142,13 @@ const Home = () => {
                         transition={{ duration: 0.8 }}
                         className="text-center mb-16"
                     >
-                        <h2 className="text-4xl md:text-5xl font-heading font-extrabold text-white mb-4 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]">
+                        <span className="font-serif italic text-2xl text-blue-300/80 mb-2 block">Student & Staff Services</span>
+                        <h2 className="text-4xl md:text-5xl font-heading font-bold text-white mb-4 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]">
                             Quick Access Portals
                         </h2>
-                        <div className="h-1.5 w-24 bg-gradient-to-r from-orange-500 to-amber-500 mx-auto mt-6 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.5)]"></div>
                     </motion.div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {[
                             { 
                                 title: "Authentication", 
@@ -155,8 +156,8 @@ const Home = () => {
                                 desc: "Access your dashboard, profile, and academic records.", 
                                 iconType: "user", 
                                 link: "/student/login", 
-                                gradient: "from-blue-600 to-indigo-600",
-                                glow: "#4f46e5",
+                                hoverBg: "group-hover:bg-blue-600/25",
+                                iconColor: "text-blue-400",
                                 delay: 0
                             },
                             { 
@@ -165,9 +166,9 @@ const Home = () => {
                                 desc: "Check semester results and download marksheets instantly.", 
                                 iconType: "result", 
                                 link: "/result", 
-                                gradient: "from-orange-500 to-amber-500",
-                                glow: "#f59e0b",
-                                delay: 0.2
+                                hoverBg: "group-hover:bg-orange-500/25",
+                                iconColor: "text-orange-400",
+                                delay: 0.15
                             },
                             { 
                                 title: "Administration", 
@@ -175,58 +176,44 @@ const Home = () => {
                                 desc: "Secure portal for college faculty and staff members.", 
                                 iconType: "admin", 
                                 link: "/admin/login", 
-                                gradient: "from-emerald-600 to-teal-600",
-                                glow: "#059669",
-                                delay: 0.4
+                                hoverBg: "group-hover:bg-emerald-600/25",
+                                iconColor: "text-emerald-400",
+                                delay: 0.3
                             }
                         ].map((item, idx) => (
                             <motion.div
                                 key={idx}
-                                initial={{ opacity: 0, y: 50 }}
+                                initial={{ opacity: 0, y: 30 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                transition={{ delay: item.delay, duration: 0.6 }}
+                                transition={{ delay: item.delay, duration: 0.5 }}
                             >
-                                <Link to={item.link} className="group block h-full relative">
-                                    {/* Neon Glow Background */}
-                                    <div 
-                                        className="absolute -inset-1 rounded-[2rem] blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-500"
-                                        style={{ background: item.glow }}
-                                    ></div>
-
-                                    {/* Card Content */}
-                                    <div className="relative h-full bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-[1.8rem] p-8 hover:bg-slate-800/50 transition-all duration-300 hover:-translate-y-2 overflow-hidden">
-                                        
-                                        {/* Gradient Hover Overlay */}
-                                        <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
-                                        
-                                        <div className="relative z-10 flex flex-col h-full items-center text-center">
-                                            {/* Icon Circle */}
-                                            <div className="w-24 h-24 mb-6 relative">
-                                                <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-20 rounded-full blur-md group-hover:blur-lg transition-all`}></div>
-                                                <div className="relative w-full h-full bg-slate-800/50 rounded-full border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                                    {item.iconType === 'user' && <svg className="w-10 h-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>}
-                                                    {item.iconType === 'result' && <svg className="w-10 h-10 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
-                                                    {item.iconType === 'admin' && <svg className="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>}
-                                                </div>
+                                <Link to={item.link} className="group block h-full">
+                                    <div className={`h-full bg-slate-800/80 ${item.hoverBg} rounded-2xl p-8 hover:-translate-y-1 transition-all duration-300 shadow-lg border border-white/5`}>
+                                        <div className="flex flex-col h-full items-center text-center">
+                                            {/* Icon */}
+                                            <div className="w-16 h-16 mb-5 rounded-full bg-slate-700/50 group-hover:bg-white/20 flex items-center justify-center transition-colors duration-300">
+                                                {item.iconType === 'user' && <svg className={`w-8 h-8 ${item.iconColor} group-hover:text-white transition-colors duration-300`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>}
+                                                {item.iconType === 'result' && <svg className={`w-8 h-8 ${item.iconColor} group-hover:text-white transition-colors duration-300`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
+                                                {item.iconType === 'admin' && <svg className={`w-8 h-8 ${item.iconColor} group-hover:text-white transition-colors duration-300`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>}
                                             </div>
 
-                                            <p className={`text-xs font-bold uppercase tracking-widest mb-2 text-transparent bg-clip-text bg-gradient-to-r ${item.gradient}`}>
+                                            <p className={`text-xs font-semibold uppercase tracking-wider mb-1 ${item.iconColor} group-hover:text-white/70 transition-colors duration-300`}>
                                                 {item.subtitle}
                                             </p>
                                             
-                                            <h3 className="text-3xl font-heading font-bold text-white mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-300 transition-colors">
+                                            <h3 className="text-2xl font-bold text-white mb-3">
                                                 {item.title}
                                             </h3>
                                             
-                                            <p className="text-slate-300 leading-relaxed mb-8 text-sm flex-grow">
+                                            <p className="text-slate-400 group-hover:text-white/80 text-sm mb-6 flex-grow transition-colors duration-300">
                                                 {item.desc}
                                             </p>
 
                                             <div className="w-full">
-                                                <div className={`w-full py-4 rounded-xl bg-gradient-to-r ${item.gradient} text-white font-bold text-lg shadow-lg group-hover:shadow-xl group-hover:shadow-${item.glow}/20 transition-all flex items-center justify-center gap-2 group-hover:gap-3`}>
+                                                <div className="w-full py-3 rounded-lg bg-slate-700/50 group-hover:bg-white/20 text-white font-semibold text-base flex items-center justify-center gap-2 transition-colors duration-300">
                                                     Access Portal
-                                                    <svg className="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                                     </svg>
                                                 </div>
@@ -239,11 +226,108 @@ const Home = () => {
                     </div>
                 </main>
 
-                {/* Notice Board Section */}
-                <NoticeBoard />
+                {/* New Modern Notice Section */}
+                <NoticeSection />
+
+                {/* Campus Gallery Section with Slideshow */}
+                <section className="py-24 bg-gradient-to-b from-slate-900 to-slate-800 relative z-20 overflow-hidden">
+                    {/* Decorative Background Elements */}
+                    <div className="absolute inset-0 opacity-10">
+                        <div className="absolute top-20 left-20 w-72 h-72 bg-orange-500 rounded-full blur-[120px]" />
+                        <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500 rounded-full blur-[150px]" />
+                    </div>
+                    <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+                    
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                        {/* Attractive Header Above Slideshow */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6 }}
+                            className="text-center mb-16"
+                        >
+                            {/* Badge */}
+                            <motion.span 
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                className="inline-flex items-center gap-2 px-5 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-orange-400 text-sm font-semibold tracking-wide mb-6"
+                            >
+                                <span className="w-2 h-2 bg-orange-400 rounded-full animate-pulse" />
+                                EXPLORE OUR CAMPUS
+                            </motion.span>
+
+                            {/* Heading */}
+                            <h2 className="text-4xl md:text-6xl font-heading font-bold text-white mb-4 leading-tight">
+                                A Place Where{' '}
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400">
+                                    Dreams
+                                </span>
+                                <br />
+                                Take Flight
+                            </h2>
+
+                            {/* Subheading */}
+                            <p className="text-xl text-blue-200/80 max-w-2xl mx-auto font-light">
+                                Discover our world-class infrastructure designed to nurture academic excellence and holistic development
+                            </p>
+
+                            {/* Stats Row */}
+                            <div className="flex flex-wrap items-center justify-center gap-8 mt-10">
+                                <div className="text-center">
+                                    <span className="block text-3xl md:text-4xl font-bold text-white">7+</span>
+                                    <span className="text-sm text-slate-400 font-medium">Acres Campus</span>
+                                </div>
+                                <div className="w-px h-12 bg-slate-700" />
+                                <div className="text-center">
+                                    <span className="block text-3xl md:text-4xl font-bold text-white">50+</span>
+                                    <span className="text-sm text-slate-400 font-medium">Classrooms</span>
+                                </div>
+                                <div className="w-px h-12 bg-slate-700" />
+                                <div className="text-center">
+                                    <span className="block text-3xl md:text-4xl font-bold text-white">24/7</span>
+                                    <span className="text-sm text-slate-400 font-medium">Security</span>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Campus Slideshow */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 50 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
+                        >
+                            <CampusSlideshow cleanMode={true} />
+                        </motion.div>
+
+                        {/* Features Below Slideshow */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
+                            {[
+                                { icon: '🏛️', label: 'Modern Infrastructure' },
+                                { icon: '📚', label: 'Digital Library' },
+                                { icon: '🧪', label: 'Science Labs' },
+                                { icon: '🌳', label: 'Green Campus' }
+                            ].map((feature, idx) => (
+                                <motion.div
+                                    key={idx}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: idx * 0.1 + 0.3 }}
+                                    className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 text-center hover:bg-white/10 transition-colors"
+                                >
+                                    <span className="text-3xl block mb-2">{feature.icon}</span>
+                                    <span className="text-white/80 text-sm font-medium">{feature.label}</span>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
 
                 {/* About Section - Totally Opaque for Readability */}
-                <section className="py-24 bg-slate-50 relative z-20 rounded-t-[3rem] shadow-[0_-20px_60px_rgba(0,0,0,0.5)] overflow-hidden">
+                <section className="py-24 bg-slate-50 relative z-20 border-t border-gray-200 overflow-hidden">
                      {/* Subtle pattern */}
                     <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#4b5563 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
                     
@@ -276,14 +360,18 @@ const Home = () => {
                                 initial={{ opacity: 0, x: 50 }}
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
-                                className="space-y-8"
+                                className="space-y-8 pl-0 lg:pl-12"
                             >
-                                <span className="text-blue-600 font-bold tracking-wider uppercase text-xs bg-blue-100 px-4 py-2 rounded-full ring-4 ring-blue-50">About Us</span>
-                                <h2 className="text-4xl md:text-5xl font-heading font-extrabold text-gray-900 leading-tight">
-                                    Touching Lives through <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Pure Education</span>
-                                </h2>
-                                <p className="text-gray-600 leading-relaxed text-lg">
-                                    SVD Gurukul Mahavidyalaya is a premier institution dedicated to academic excellence and holistic development. Located in the serene environment of Dumduma, Unchgaon, Jaunpur, we shape the future of refined professionals.
+                                <div className="space-y-2">
+                                    <span className="font-serif italic text-2xl text-blue-600">Our Story</span>
+                                    <h2 className="text-4xl md:text-5xl font-heading font-bold text-gray-900 leading-[1.1]">
+                                        Touching Lives through <br/>
+                                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-600">Pure Education.</span>
+                                    </h2>
+                                </div>
+                                
+                                <p className="text-gray-600 leading-relaxed text-lg font-light">
+                                    SVD Gurukul Mahavidyalaya is more than just an institution; it's a <span className="font-medium text-gray-900">home for curious minds</span>. Located in the serene environment of Dumduma, Unchgaon, Jaunpur, we have been quietly shaping the future of refined professionals since 2010.
                                 </p>
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
