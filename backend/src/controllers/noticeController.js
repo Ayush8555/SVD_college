@@ -62,14 +62,21 @@ export const getAdminNotices = async (req, res) => {
 // @access  Private/Admin
 export const createNotice = async (req, res) => {
   try {
-    const { title, content, type, priority } = req.body;
+    const { title, content, category, priority, eventDate } = req.body;
+    let imageUrl = null;
+
+    if (req.file) {
+      imageUrl = `/uploads/public/notices/${req.file.filename}`;
+    }
 
     const notice = await Notice.create({
       title,
       content,
-      type,
+      category,
       priority,
-      createdBy: req.user._id // Assumes auth middleware populates req.user
+      eventDate,
+      imageUrl,
+      createdBy: req.user._id
     });
 
     res.status(201).json({
@@ -85,6 +92,9 @@ export const createNotice = async (req, res) => {
   }
 };
 
+import fs from 'fs';
+import path from 'path';
+
 // @desc    Delete a notice
 // @route   DELETE /api/notices/:id
 // @access  Private/Admin
@@ -97,6 +107,14 @@ export const deleteNotice = async (req, res) => {
         success: false,
         message: 'Notice not found'
       });
+    }
+
+    // Delete image file if exists
+    if (notice.imageUrl) {
+      const imagePath = path.join(process.cwd(), notice.imageUrl);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
     }
 
     await notice.deleteOne();

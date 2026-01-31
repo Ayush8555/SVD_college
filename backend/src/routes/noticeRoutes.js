@@ -13,9 +13,11 @@ const router = express.Router();
 // Public routes
 router.get('/', getNotices);
 
+import { uploadNoticeImage } from '../middleware/publicUploadMiddleware.js';
+
 // Admin routes
 router.get('/admin', protect, getAdminNotices);
-router.post('/', protect, createNotice);
+router.post('/', protect, uploadNoticeImage, createNotice);
 router.delete('/:id', protect, deleteNotice);
 router.put('/:id/toggle', protect, toggleNoticeStatus);
 

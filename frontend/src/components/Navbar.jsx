@@ -10,12 +10,12 @@ const Navbar = () => {
     // Dropdown menu items
     const dropdownMenus = {
         programs: {
-            label: 'Programs',
+            label: 'Courses Offered',
             items: [
-                { name: 'B.Ed (2 Years)', path: '/programs/bed', description: 'Bachelor of Education' },
+                { name: 'B.Ed (3 Years)', path: '/programs/bed', description: 'Bachelor of Education' },
                 { name: 'B.T.C / D.El.Ed (2 Years)', path: '/programs/btc', description: 'Diploma in Elementary Education' },
                 { name: 'B.A (3 Years)', path: '/programs/ba', description: 'Bachelor of Arts' },
-                { name: 'M.A (2 Years)', path: '/programs/ma', description: 'Master of Arts' },
+                { name: 'LL.B (3 Years)', path: '/programs/llb', description: 'Bachelor of Law' },
             ]
         },
         campus: {

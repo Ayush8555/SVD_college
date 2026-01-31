@@ -141,6 +141,8 @@ const resultSchema = new mongoose.Schema(
 
 // Compound index to ensure one result per student per semester per exam type
 resultSchema.index({ student: 1, semester: 1, examType: 1 }, { unique: true });
+// Index for semester-based queries (merit list, gazette)
+resultSchema.index({ semester: 1, isPublished: 1 });
 
 // Pre-save hook to calculate/verify SGPA (Optional validation)
 resultSchema.pre('save', async function () {

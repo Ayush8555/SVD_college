@@ -11,10 +11,18 @@ const noticeSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide notice content']
   },
-  type: {
+  imageUrl: {
+    type: String, // Path to the uploaded image
+    default: null
+  },
+  category: {
     type: String,
-    enum: ['General', 'Urgent', 'Holiday', 'Exam', 'Event'],
+    enum: ['General', 'Urgent', 'Holiday', 'Exam', 'Event', 'Infrastructure', 'Academic', 'Admissions', 'Sports', 'Research'],
     default: 'General'
+  },
+  eventDate: {
+    type: Date,
+    default: null // Optional date for the event/deadline
   },
   priority: {
     type: String,

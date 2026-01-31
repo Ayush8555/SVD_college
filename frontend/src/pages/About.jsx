@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Background3D from '../components/Background3D';
 import collegeBuildingImg from '../assets/college_building.jpg';
+import CampusSlideshow from '../components/CampusSlideshow';
 
 const About = () => {
     const fadeInUp = {
@@ -37,33 +38,84 @@ const About = () => {
                         <motion.div variants={fadeInUp} className="w-24 h-1.5 bg-gradient-to-r from-orange-500 to-amber-500 mx-auto rounded-full shadow-lg"></motion.div>
                     </motion.div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start mb-20">
-                        <motion.div 
-                            initial={{ opacity: 0, x: -50 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.8 }}
-                            className="relative"
-                        >
-                            <div className="absolute inset-0 bg-blue-600 rounded-3xl rotate-3 opacity-20 blur-xl translate-y-4"></div>
-                            <img 
-                                src={collegeBuildingImg} 
-                                alt="SVD Gurukul College Building" 
-                                className="relative rounded-3xl shadow-2xl w-full h-[450px] object-cover border border-white/20"
-                            />
-                            {/* Floating Badge */}
-                            <motion.div 
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-                                className="absolute -bottom-6 -right-6 bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-white/50"
+                    {/* Campus Gallery Section */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="mb-20"
+                    >
+                        <div className="text-center mb-12">
+                            {/* Badge */}
+                            <motion.span 
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="inline-flex items-center gap-2 px-5 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-orange-400 text-sm font-semibold tracking-wide mb-6"
                             >
-                                <div className="text-center">
-                                    <span className="block text-3xl font-bold text-orange-600">15+</span>
-                                    <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Years of<br/>Success</span>
-                                </div>
-                            </motion.div>
-                        </motion.div>
+                                <span className="w-2 h-2 bg-orange-400 rounded-full" />
+                                EXPLORE OUR CAMPUS
+                            </motion.span>
 
+                            {/* Heading */}
+                            <h2 className="text-3xl md:text-5xl font-heading font-bold text-white mb-4 leading-tight text-shadow-lg">
+                                A Place Where{' '}
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400">
+                                    Dreams
+                                </span>{' '}
+                                Take Flight
+                            </h2>
+
+                            {/* Subheading */}
+                            <p className="text-lg text-blue-200/80 max-w-2xl mx-auto font-light">
+                                Discover our world-class infrastructure designed to nurture academic excellence and holistic development
+                            </p>
+
+                            {/* Stats Row */}
+                            <div className="flex flex-wrap items-center justify-center gap-8 mt-8">
+                                <div className="text-center">
+                                    <span className="block text-2xl md:text-3xl font-bold text-white">7+</span>
+                                    <span className="text-sm text-slate-300 font-medium">Acres Campus</span>
+                                </div>
+                                <div className="w-px h-10 bg-slate-600" />
+                                <div className="text-center">
+                                    <span className="block text-2xl md:text-3xl font-bold text-white">50+</span>
+                                    <span className="text-sm text-slate-300 font-medium">Classrooms</span>
+                                </div>
+                                <div className="w-px h-10 bg-slate-600" />
+                                <div className="text-center">
+                                    <span className="block text-2xl md:text-3xl font-bold text-white">24/7</span>
+                                    <span className="text-sm text-slate-300 font-medium">Security</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Campus Slideshow */}
+                        <CampusSlideshow cleanMode={true} />
+
+                        {/* Features Below Slideshow */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                            {[
+                                { icon: '🏛️', label: 'Modern Infrastructure' },
+                                { icon: '📚', label: 'Digital Library' },
+                                { icon: '🧪', label: 'Science Labs' },
+                                { icon: '🌳', label: 'Green Campus' }
+                            ].map((feature, idx) => (
+                                <motion.div
+                                    key={idx}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: idx * 0.1 + 0.5 }}
+                                    className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 text-center hover:bg-white/20 transition-colors"
+                                >
+                                    <span className="text-2xl block mb-2">{feature.icon}</span>
+                                    <span className="text-white/90 text-sm font-medium">{feature.label}</span>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </motion.div>
+
+                    {/* About Content Section */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start mb-20">
                         <motion.div 
                             initial={{ opacity: 0, x: 50 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -81,10 +133,7 @@ const About = () => {
                                 Our campus features state-of-the-art classrooms, a digital library, and a dedicated team of faculty members who mentor students to achieve their highest potential in Arts, Science, and Education.
                             </p>
                             
-                            <div className="flex gap-4 pt-4">
-                                <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-semibold">UGC Recognized</span>
-                                <span className="px-4 py-2 bg-orange-50 text-orange-700 rounded-lg text-sm font-semibold">NAAC Accredited</span>
-                            </div>
+                            
                         </motion.div>
                     </div>
 
@@ -95,13 +144,13 @@ const About = () => {
                         transition={{ duration: 0.8 }}
                         className="mb-20"
                     >
-                        <h2 className="text-3xl font-bold text-center text-white mb-10 text-shadow-md">Academic Programs</h2>
+                        <h2 className="text-3xl font-bold text-center text-white mb-10 text-shadow-md">Courses Offered</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {[
-                                { name: 'Bachelor of Arts (B.A)', letter: 'BA', color: 'bg-rose-100 text-rose-600' },
-                                { name: 'Bachelor of Science (B.Sc)', letter: 'BS', color: 'bg-blue-100 text-blue-600' },
-                                { name: 'D.El.Ed. (BTC)', letter: 'DE', color: 'bg-amber-100 text-amber-600' },
-                                { name: 'Bachelor of Law (LL.B)', letter: 'LB', color: 'bg-emerald-100 text-emerald-600' }
+                                { name: 'B.Ed (Bachelor of Education)', letter: 'BE', color: 'bg-rose-100 text-rose-600', duration: '3 Years' },
+                                { name: 'B.T.C / D.El.Ed', letter: 'DE', color: 'bg-amber-100 text-amber-600', duration: '2 Years' },
+                                { name: 'Bachelor of Arts (B.A)', letter: 'BA', color: 'bg-blue-100 text-blue-600', duration: '3 Years' },
+                                { name: 'Bachelor of Law (LL.B)', letter: 'LB', color: 'bg-emerald-100 text-emerald-600', duration: '3 Years' }
                             ].map((course, idx) => (
                                 <motion.div 
                                     key={idx} 
@@ -112,7 +161,7 @@ const About = () => {
                                         {course.letter}
                                     </div>
                                     <h3 className="text-xl font-bold text-gray-900 mb-2">{course.name}</h3>
-                                    <p className="text-gray-500 text-sm">Full-time • 3 Years</p>
+                                    <p className="text-gray-500 text-sm">Full-time • {course.duration}</p>
                                 </motion.div>
                             ))}
                         </div>
@@ -133,7 +182,7 @@ const About = () => {
                             <div className="flex items-center justify-center gap-4">
                                 <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center font-bold text-xl">P</div>
                                 <div className="text-left">
-                                    <p className="font-bold text-lg text-orange-400">Dr. Sharma</p>
+                                    <p className="font-bold text-lg text-orange-400">Shri Abhishek Upadhyay(Shrimant)</p>
                                     <p className="text-sm text-blue-200">Principal, SVD Gurukul</p>
                                 </div>
                             </div>
