@@ -3,11 +3,10 @@ import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Background3D from '../components/Background3D';
 import collegeBuildingImg from '../assets/college_building.jpg';
-
+import CampusSlideshow from '../components/CampusSlideshow';
 
 const About = () => {
     const fadeInUp = {
-        
         hidden: { opacity: 0, y: 30 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
     };
@@ -90,8 +89,8 @@ const About = () => {
                             </div>
                         </div>
 
-
-
+                        {/* Campus Slideshow */}
+                        <CampusSlideshow cleanMode={true} />
 
                         {/* Features Below Slideshow */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
@@ -148,10 +147,10 @@ const About = () => {
                         <h2 className="text-3xl font-bold text-center text-white mb-10 text-shadow-md">Courses Offered</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {[
-                                { name: 'B.Ed (Bachelor of Education)', letter: 'BE', color: 'bg-rose-100 text-rose-600', duration: '3 Years' },
+                                { name: 'B.Ed (Bachelor of Education)', letter: 'BE', color: 'bg-rose-100 text-rose-600', duration: '2 Years' },
                                 { name: 'B.T.C / D.El.Ed', letter: 'DE', color: 'bg-amber-100 text-amber-600', duration: '2 Years' },
                                 { name: 'Bachelor of Arts (B.A)', letter: 'BA', color: 'bg-blue-100 text-blue-600', duration: '3 Years' },
-                                { name: 'Bachelor of Law (LL.B)', letter: 'LB', color: 'bg-emerald-100 text-emerald-600', duration: '3 Years' }
+                                { name: 'M.A (Master of Arts)', letter: 'MA', color: 'bg-emerald-100 text-emerald-600', duration: '2 Years' }
                             ].map((course, idx) => (
                                 <motion.div 
                                     key={idx} 
