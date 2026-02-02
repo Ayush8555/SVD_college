@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import Background3D from '../components/Background3D';
 import collegeBuildingImg from '../assets/college_building.jpg';
 import NoticeSection from '../components/home/NoticeSection';
+import CampusSlideshow from '../components/CampusSlideshow';
 
 const Home = () => {
     const { scrollYProgress } = useScroll();
@@ -141,6 +142,10 @@ const Home = () => {
                         transition={{ duration: 0.8 }}
                         className="text-center mb-16"
                     >
+                        <div className="max-w-4xl mx-auto mb-16">
+                            <CampusSlideshow />
+                        </div>
+
                         <span className="font-serif italic text-2xl text-blue-300/80 mb-2 block">Student & Staff Services</span>
                         <h2 className="text-4xl md:text-5xl font-heading font-bold text-white mb-4 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]">
                             Quick Access Portals
