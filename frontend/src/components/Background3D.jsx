@@ -62,48 +62,7 @@ const CustomParticles = (props) => {
     );
 };
 
-const ElegantShapes = () => {
-    return (
-        <Float speed={2} rotationIntensity={0.8} floatIntensity={1}>
-             {/* Center-ish shape */}
-             <mesh position={[2, 0, -5]} scale={0.8}>
-                <torusKnotGeometry args={[1, 0.3, 64, 8]} /> {/* Lower polygon count */}
-                <meshStandardMaterial 
-                    color="#4338ca" // Indigo
-                    emissive="#4338ca"
-                    emissiveIntensity={0.5}
-                    roughness={0.1} 
-                    metalness={0.8} 
-                    transparent 
-                    opacity={0.8} 
-                    wireframe={true}
-                />
-            </mesh>
-            
-            {/* Left shape */}
-            <mesh position={[-3, 2, -6]} scale={0.6}>
-                <icosahedronGeometry args={[1, 0]} /> {/* Lowest detail */}
-                <meshStandardMaterial 
-                    color="#f59e0b" // Amber
-                    roughness={0} 
-                    metalness={1}
-                />
-            </mesh>
-            
-            {/* Right shape */}
-            <mesh position={[3, -2, -4]} scale={0.5}>
-                <octahedronGeometry />
-                <meshStandardMaterial 
-                    color="#d946ef" // Fuchsia
-                    roughness={0} 
-                    metalness={0.5} 
-                    transparent 
-                    opacity={0.6}
-                />
-            </mesh>
-        </Float>
-    )
-}
+
 
 const Background3D = React.memo(() => {
   return (
@@ -116,7 +75,6 @@ const Background3D = React.memo(() => {
         
         <StarField />
         <CustomParticles />
-        <ElegantShapes />
       </Canvas>
       <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-[#0f172a] opacity-80 pointer-events-none"></div>
     </div>
