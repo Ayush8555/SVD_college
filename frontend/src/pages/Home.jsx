@@ -142,7 +142,7 @@ const Home = () => {
                         transition={{ duration: 0.8 }}
                         className="text-center mb-16"
                     >
-                        <div className="max-w-4xl mx-auto mb-16">
+                        <div className="w-full mb-16">
                             <CampusSlideshow />
                         </div>
 
