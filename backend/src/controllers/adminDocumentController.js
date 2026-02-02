@@ -190,52 +190,27 @@ export const decryptDocument = async (req, res) => {
     }
     
     // Read encrypted file
-    console.log('DEBUG: Document found:', {
-      id: document._id,
-      fileLocation: document.encryptedFileLocation,
-      hasChecksum: !!document.checksum,
-      authTag: document.authTag?.substring(0, 20) + '...',
-      hasEncryptedDEK: !!document.encryptedDEK,
-      hasIV: !!document.iv
-    });
-    
-    let encryptedData;
-    try {
-      encryptedData = await readEncryptedFile(document.encryptedFileLocation);
-      console.log('DEBUG: File read successfully, size:', encryptedData.length);
-    } catch (fileError) {
-      console.error('DEBUG: File read error:', fileError.message);
-      throw new Error(`File not found or unreadable: ${fileError.message}`);
-    }
+    const encryptedData = await readEncryptedFile(document.encryptedFileLocation);
     
     // Decrypt - check if client-side encrypted (authTag === 'client-side')
     let decryptedData;
-    console.log('DEBUG: Starting decryption, authTag type:', document.authTag === 'client-side' ? 'client-side' : 'server-side');
-    
-    try {
-      if (document.authTag === 'client-side') {
-        // Client-side encryption: auth tag is appended to ciphertext
-        decryptedData = encryptionService.decryptClientSideEncrypted(
-          encryptedData,
-          document.encryptedDEK,
-          document.iv,
-          document.checksum
-        );
-      } else {
-        // Server-side encryption: separate auth tag
-        decryptedData = encryptionService.envelopeDecrypt(
-          encryptedData,
-          document.encryptedDEK,
-          document.iv,
-          document.authTag,
-          document.checksum
-        );
-      }
-      console.log('DEBUG: Decryption successful, decrypted size:', decryptedData.length);
-    } catch (decryptError) {
-      console.error('DEBUG: Decryption error:', decryptError.message);
-      console.error('DEBUG: Decryption stack:', decryptError.stack);
-      throw decryptError;
+    if (document.authTag === 'client-side') {
+      // Client-side encryption: auth tag is appended to ciphertext
+      decryptedData = encryptionService.decryptClientSideEncrypted(
+        encryptedData,
+        document.encryptedDEK,
+        document.iv,
+        document.checksum
+      );
+    } else {
+      // Server-side encryption: separate auth tag
+      decryptedData = encryptionService.envelopeDecrypt(
+        encryptedData,
+        document.encryptedDEK,
+        document.iv,
+        document.authTag,
+        document.checksum
+      );
     }
     
     // Mark as under review if pending
@@ -259,18 +234,13 @@ export const decryptDocument = async (req, res) => {
       }
     });
     
-    // Sanitize filename for Content-Disposition header (remove non-ASCII chars)
-    const safeFilename = document.originalFileName
-      .replace(/[^\x20-\x7E]/g, '_') // Replace non-ASCII with underscore
-      .replace(/["\\/]/g, '_');       // Remove problematic chars
-    
     // Add watermark info to response headers
     res.set({
       'X-Document-Id': document._id.toString(),
       'X-Admin-Id': adminId.toString(),
       'X-Access-Time': new Date().toISOString(),
       'Content-Type': document.mimeType,
-      'Content-Disposition': `inline; filename="${safeFilename}"`,
+      'Content-Disposition': `inline; filename="${document.originalFileName}"`,
       'Cache-Control': 'no-store, no-cache, must-revalidate, private',
       'Pragma': 'no-cache',
       'Expires': '0'
@@ -281,7 +251,6 @@ export const decryptDocument = async (req, res) => {
     
   } catch (error) {
     console.error('Decrypt document error:', error);
-    console.error('Error stack:', error.stack);
     
     await logAccess({
       documentId: id,
@@ -295,9 +264,7 @@ export const decryptDocument = async (req, res) => {
     
     res.status(500).json({
       success: false,
-      message: 'Failed to decrypt document',
-      error: process.env.NODE_ENV !== 'production' ? error.message : undefined,
-      stack: process.env.NODE_ENV !== 'production' ? error.stack : undefined
+      message: 'Failed to decrypt document'
     });
   }
 };

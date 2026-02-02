@@ -233,7 +233,7 @@ documentSchema.statics.getVerificationQueue = function(options = {}) {
  */
 documentSchema.statics.getForDecryption = function(documentId) {
   return this.findById(documentId)
-    .select('+encryptedFileLocation +encryptedDEK +iv +authTag +checksum')
+    .select('+encryptedFileLocation +encryptedDEK +iv +authTag')
     .populate('studentId', 'rollNumber firstName lastName');
 };
 

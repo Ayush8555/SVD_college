@@ -3,10 +3,11 @@ import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Background3D from '../components/Background3D';
 import collegeBuildingImg from '../assets/college_building.jpg';
-import CampusSlideshow from '../components/CampusSlideshow';
+
 
 const About = () => {
     const fadeInUp = {
+        
         hidden: { opacity: 0, y: 30 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
     };
@@ -89,8 +90,8 @@ const About = () => {
                             </div>
                         </div>
 
-                        {/* Campus Slideshow */}
-                        <CampusSlideshow cleanMode={true} />
+
+
 
                         {/* Features Below Slideshow */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">

@@ -273,7 +273,7 @@ export const getPublicKey = async (req, res) => {
   }
 };
 
-// @desc    Delete student's own document
+// @desc    Delete student's own document (only if pending)
 // @route   DELETE /api/documents/:id
 // @access  Private (Student)
 export const deleteMyDocument = async (req, res) => {
@@ -298,7 +298,15 @@ export const deleteMyDocument = async (req, res) => {
       });
     }
     
-    // Delete the document
+    // Only allow deletion of pending documents
+    if (document.status !== 'pending') {
+      return res.status(400).json({
+        success: false,
+        message: 'You can only delete documents that are still pending verification'
+      });
+    }
+    
+    // Hard delete the document (since it's pending and owned by student)
     await Document.findByIdAndDelete(id);
     
     res.status(200).json({
