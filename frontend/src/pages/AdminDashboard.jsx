@@ -48,6 +48,7 @@ const AdminDashboard = () => {
       { id: 'queries', label: 'Help Desk', iconType: 'help' },
       { id: 'inquiries', label: 'Admission Inquiries', iconType: 'clipboard' },
       { id: 'documents', label: 'Document Verification', iconType: 'file', isLink: true, href: '/admin/documents' },
+      { id: 'grievances', label: 'Grievance Portal', iconType: 'support', isLink: true, href: '/admin/grievances' },
       { id: 'notices', label: 'Circulars & Notices', iconType: 'bell' },
   ];
 
@@ -170,6 +171,7 @@ const AdminDashboard = () => {
                 {activeTab === 'reports' && <ReportsTab />}
                 {activeTab === 'queries' && <QueriesTab />}
                 {activeTab === 'inquiries' && <AdminInquiries />}
+                {activeTab === 'grievances' && <GrievanceManager />}
                 {activeTab === 'notices' && <NoticesTab />}
             </div>
         </main>

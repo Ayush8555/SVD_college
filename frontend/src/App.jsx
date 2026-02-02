@@ -30,7 +30,8 @@ const DocumentUpload = lazy(() => import('./components/documents/DocumentUpload'
 const AdminDocumentQueue = lazy(() => import('./pages/admin/AdminDocumentQueue'));
 const AuditLogViewer = lazy(() => import('./components/admin/AuditLogViewer'));
 const AdminNoticeManager = lazy(() => import('./pages/admin/AdminNoticeManager'));
-
+const GrievanceList = lazy(() => import('./pages/student/GrievanceList'));
+const GrievanceManager = lazy(() => import('./pages/admin/GrievanceManager'));
 
 // Premium Loading Spinner Component
 const LoadingSpinner = () => (
@@ -79,7 +80,7 @@ function App() {
                   <Route path="examination" element={<StudentExamination />} />
                   <Route path="profile" element={<StudentProfile />} />
                   <Route path="queries" element={<StudentHelpDesk />} />
-
+                  <Route path="grievances" element={<GrievanceList />} />
                   <Route path="documents" element={<DocumentUpload />} />
                   {/* Default redirect */}
                   <Route index element={<Navigate to="dashboard" replace />} />
@@ -145,7 +146,14 @@ function App() {
                  }
                />
 
-
+               <Route
+                 path="/admin/grievances"
+                 element={
+                   <ProtectedRoute adminOnly>
+                     <GrievanceManager />
+                   </ProtectedRoute>
+                 }
+               />
 
               {/* Catch all - Redirect to Home */}
               <Route path="*" element={<Navigate to="/" replace />} />

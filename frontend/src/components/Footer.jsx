@@ -6,10 +6,9 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
-            <h3 className="text-xl font-heading font-bold mb-4">GEC Pune</h3>
+            <h3 className="text-xl font-heading font-bold mb-4">SVD Gurukul</h3>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Government Engineering College, Pune is an autonomous institute of Government of Maharashtra.
-              Affiliated to Savitribai Phule Pune University.
+              SVD Gurukul Mahavidyalaya Dumduma Unchgaon, Jaunpur
             </p>
           </div>
           <div>
@@ -23,13 +22,13 @@ const Footer = () => {
           </div>
           <div>
             <h3 className="text-lg font-heading font-semibold mb-4">Contact</h3>
-            <p className="text-gray-400 text-sm mb-2">Shivajinagar, Pune - 411005</p>
-            <p className="text-gray-400 text-sm mb-2">Phone: +91-20-2567-8900</p>
-            <p className="text-gray-400 text-sm">Email: info@gec-pune.edu.in</p>
+            <p className="text-gray-400 text-sm mb-2">Dumduma Unchgaon, Jaunpur - 222001</p>
+            <p className="text-gray-400 text-sm mb-2">Phone:8400421843</p>
+            <p className="text-gray-400 text-sm">Email: Will be provided soon</p>
           </div>
         </div>
         <div className="border-t border-gray-800 pt-8 text-center text-sm text-gray-500">
-          <p>&copy; {new Date().getFullYear()} Government Engineering College, Pune. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} SVD Gurukul. All rights reserved.</p>
         </div>
       </div>
     </footer>

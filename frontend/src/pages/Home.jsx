@@ -5,7 +5,6 @@ import Navbar from '../components/Navbar';
 import Background3D from '../components/Background3D';
 import collegeBuildingImg from '../assets/college_building.jpg';
 import NoticeSection from '../components/home/NoticeSection';
-import CampusSlideshow from '../components/CampusSlideshow';
 
 const Home = () => {
     const { scrollYProgress } = useScroll();
@@ -228,103 +227,6 @@ const Home = () => {
 
                 {/* New Modern Notice Section */}
                 <NoticeSection />
-
-                {/* Campus Gallery Section with Slideshow */}
-                <section className="py-24 bg-gradient-to-b from-slate-900 to-slate-800 relative z-20 overflow-hidden">
-                    {/* Decorative Background Elements */}
-                    <div className="absolute inset-0 opacity-10">
-                        <div className="absolute top-20 left-20 w-72 h-72 bg-orange-500 rounded-full blur-[120px]" />
-                        <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500 rounded-full blur-[150px]" />
-                    </div>
-                    <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-                    
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                        {/* Attractive Header Above Slideshow */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6 }}
-                            className="text-center mb-16"
-                        >
-                            {/* Badge */}
-                            <motion.span 
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                className="inline-flex items-center gap-2 px-5 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-orange-400 text-sm font-semibold tracking-wide mb-6"
-                            >
-                                <span className="w-2 h-2 bg-orange-400 rounded-full animate-pulse" />
-                                EXPLORE OUR CAMPUS
-                            </motion.span>
-
-                            {/* Heading */}
-                            <h2 className="text-4xl md:text-6xl font-heading font-bold text-white mb-4 leading-tight">
-                                A Place Where{' '}
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400">
-                                    Dreams
-                                </span>
-                                <br />
-                                Take Flight
-                            </h2>
-
-                            {/* Subheading */}
-                            <p className="text-xl text-blue-200/80 max-w-2xl mx-auto font-light">
-                                Discover our world-class infrastructure designed to nurture academic excellence and holistic development
-                            </p>
-
-                            {/* Stats Row */}
-                            <div className="flex flex-wrap items-center justify-center gap-8 mt-10">
-                                <div className="text-center">
-                                    <span className="block text-3xl md:text-4xl font-bold text-white">7+</span>
-                                    <span className="text-sm text-slate-400 font-medium">Acres Campus</span>
-                                </div>
-                                <div className="w-px h-12 bg-slate-700" />
-                                <div className="text-center">
-                                    <span className="block text-3xl md:text-4xl font-bold text-white">50+</span>
-                                    <span className="text-sm text-slate-400 font-medium">Classrooms</span>
-                                </div>
-                                <div className="w-px h-12 bg-slate-700" />
-                                <div className="text-center">
-                                    <span className="block text-3xl md:text-4xl font-bold text-white">24/7</span>
-                                    <span className="text-sm text-slate-400 font-medium">Security</span>
-                                </div>
-                            </div>
-                        </motion.div>
-
-                        {/* Campus Slideshow */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 50 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.8, delay: 0.2 }}
-                        >
-                            <CampusSlideshow cleanMode={true} />
-                        </motion.div>
-
-                        {/* Features Below Slideshow */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
-                            {[
-                                { icon: '🏛️', label: 'Modern Infrastructure' },
-                                { icon: '📚', label: 'Digital Library' },
-                                { icon: '🧪', label: 'Science Labs' },
-                                { icon: '🌳', label: 'Green Campus' }
-                            ].map((feature, idx) => (
-                                <motion.div
-                                    key={idx}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ delay: idx * 0.1 + 0.3 }}
-                                    className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 text-center hover:bg-white/10 transition-colors"
-                                >
-                                    <span className="text-3xl block mb-2">{feature.icon}</span>
-                                    <span className="text-white/80 text-sm font-medium">{feature.label}</span>
-                                </motion.div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
 
                 {/* About Section - Totally Opaque for Readability */}
                 <section className="py-24 bg-slate-50 relative z-20 border-t border-gray-200 overflow-hidden">

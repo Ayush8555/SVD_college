@@ -40,7 +40,7 @@ const ResultDisplay = ({ result, student }) => {
         {/* Background Watermark */}
         <div className="absolute inset-0 flex items-center justify-center opacity-[0.04] pointer-events-none select-none z-0 overflow-hidden">
              <div className="transform -rotate-45 text-4xl md:text-8xl font-bold text-gray-900 whitespace-nowrap border-4 border-gray-900 p-4 rounded-3xl">
-                 SVD GURUKUL OFFICIAL
+                 SVD
              </div>
         </div>
 

@@ -653,8 +653,8 @@ const AdmissionInquiry = () => {
             </div>
             <div className="text-center md:text-right">
               <p className="text-sm text-primary-700">Need Help? Call us at</p>
-              <a href="tel:+919506080570" className="text-lg font-bold text-primary-900 hover:underline">
-                +91 95060 80570
+              <a href="tel:+918400421843" className="text-lg font-bold text-primary-900 hover:underline">
+                +91 8400421843
               </a>
             </div>
           </div>
