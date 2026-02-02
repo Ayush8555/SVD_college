@@ -9,16 +9,16 @@ const Navbar = () => {
 
     // Dropdown menu items
     const dropdownMenus = {
-        programs: {
-            label: 'Programs',
+        courses: {
+            label: 'Courses Offered',
             items: [
-                { name: 'B.Ed (2 Years)', path: '/programs/bed', description: 'Bachelor of Education' },
-                { name: 'B.T.C / D.El.Ed (2 Years)', path: '/programs/btc', description: 'Diploma in Elementary Education' },
-                { name: 'B.A (3 Years)', path: '/programs/ba', description: 'Bachelor of Arts' },
-                { name: 'M.A (2 Years)', path: '/programs/ma', description: 'Master of Arts' },
+                { name: 'B.Ed (3 Years)', path: '/courses/bed', description: 'Bachelor of Education' },
+                { name: 'B.T.C / D.El.Ed (2 Years)', path: '/courses/btc', description: 'Diploma in Elementary Education' },
+                { name: 'B.A (3 Years)', path: '/courses/ba', description: 'Bachelor of Arts' },
+                { name: 'LL.B (3 Years)', path: '/courses/LL.B', description: 'Bachelor of Law' },
             ]
-        },
-        campus: {
+        },      
+        campus: {   
             label: 'Our Campus',
             items: [
                 { name: 'Infrastructure', path: '/campus/infrastructure', description: 'Modern facilities' },

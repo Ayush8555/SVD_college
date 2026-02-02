@@ -147,10 +147,10 @@ const About = () => {
                         <h2 className="text-3xl font-bold text-center text-white mb-10 text-shadow-md">Courses Offered</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {[
-                                { name: 'B.Ed (Bachelor of Education)', letter: 'BE', color: 'bg-rose-100 text-rose-600', duration: '2 Years' },
+                                { name: 'B.Ed (Bachelor of Education)', letter: 'BE', color: 'bg-rose-100 text-rose-600', duration: '3 Years' },
                                 { name: 'B.T.C / D.El.Ed', letter: 'DE', color: 'bg-amber-100 text-amber-600', duration: '2 Years' },
                                 { name: 'Bachelor of Arts (B.A)', letter: 'BA', color: 'bg-blue-100 text-blue-600', duration: '3 Years' },
-                                { name: 'M.A (Master of Arts)', letter: 'MA', color: 'bg-emerald-100 text-emerald-600', duration: '2 Years' }
+                                { name: 'LL.B (Bachelor of Law)', letter: 'LLB', color: 'bg-emerald-100 text-emerald-600', duration: '3 Years' }
                             ].map((course, idx) => (
                                 <motion.div 
                                     key={idx} 
