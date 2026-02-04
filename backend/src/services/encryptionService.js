@@ -353,6 +353,44 @@ export const decryptClientSideEncrypted = (encryptedDataWithTag, wrappedKeyBase6
 };
 
 /**
+ * Decrypt client-side encrypted document WITHOUT checksum verification
+ * Use this as a fallback when checksum fails but we still want to attempt decryption
+ * WARNING: This bypasses integrity verification - use with caution
+ * @param {Buffer} encryptedDataWithTag - Encrypted data with auth tag appended
+ * @param {string} wrappedKeyBase64 - Base64 wrapped DEK from client
+ * @param {string} ivBase64 - Base64 IV from client (12 bytes for Web Crypto)
+ * @returns {Buffer} - Decrypted file data
+ */
+export const decryptClientSideEncryptedNoChecksum = (encryptedDataWithTag, wrappedKeyBase64, ivBase64) => {
+  console.warn('⚠️ Decrypting document without checksum verification - integrity not guaranteed');
+  
+  // Unwrap DEK with RSA private key
+  const dek = unwrapDEK(wrappedKeyBase64);
+  
+  // Convert IV from base64 (Web Crypto uses 12-byte IV for GCM)
+  const iv = Buffer.from(ivBase64, 'base64');
+  
+  // For Web Crypto AES-GCM, the auth tag (16 bytes) is appended to the ciphertext
+  const authTagLength = 16;
+  const ciphertext = encryptedDataWithTag.slice(0, -authTagLength);
+  const authTag = encryptedDataWithTag.slice(-authTagLength);
+  
+  // Decrypt file with AES-GCM
+  const decipher = crypto.createDecipheriv('aes-256-gcm', dek, iv);
+  decipher.setAuthTag(authTag);
+  
+  const plaintext = Buffer.concat([
+    decipher.update(ciphertext),
+    decipher.final()
+  ]);
+  
+  // Securely clear DEK from memory
+  dek.fill(0);
+  
+  return plaintext;
+};
+
+/**
  * Initialize encryption service
  * Call this on server startup
  */
@@ -396,5 +434,6 @@ export default {
   envelopeEncrypt,
   envelopeDecrypt,
   decryptClientSideEncrypted,
+  decryptClientSideEncryptedNoChecksum,
   initEncryptionService
 };

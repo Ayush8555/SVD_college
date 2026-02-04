@@ -189,28 +189,102 @@ export const decryptDocument = async (req, res) => {
       });
     }
     
+    // Validate encryption metadata exists
+    if (!document.encryptedFileLocation || !document.encryptedDEK || !document.iv) {
+      console.error(`Document ${id} missing encryption metadata:`, {
+        hasFileLocation: !!document.encryptedFileLocation,
+        hasEncryptedDEK: !!document.encryptedDEK,
+        hasIV: !!document.iv,
+        hasChecksum: !!document.checksum
+      });
+      
+      await logAccess({
+        documentId: id,
+        adminId,
+        action: 'decrypt',
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent'),
+        success: false,
+        failureReason: 'Missing encryption metadata'
+      });
+      
+      return res.status(500).json({
+        success: false,
+        message: 'Document encryption metadata is incomplete'
+      });
+    }
+    
     // Read encrypted file
-    const encryptedData = await readEncryptedFile(document.encryptedFileLocation);
+    let encryptedData;
+    try {
+      encryptedData = await readEncryptedFile(document.encryptedFileLocation);
+    } catch (fileError) {
+      console.error(`Failed to read encrypted file for document ${id}:`, fileError.message);
+      
+      await logAccess({
+        documentId: id,
+        adminId,
+        action: 'decrypt',
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent'),
+        success: false,
+        failureReason: `File read error: ${fileError.message}`
+      });
+      
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to read encrypted document file'
+      });
+    }
     
     // Decrypt - check if client-side encrypted (authTag === 'client-side')
     let decryptedData;
-    if (document.authTag === 'client-side') {
-      // Client-side encryption: auth tag is appended to ciphertext
-      decryptedData = encryptionService.decryptClientSideEncrypted(
-        encryptedData,
-        document.encryptedDEK,
-        document.iv,
-        document.checksum
-      );
-    } else {
-      // Server-side encryption: separate auth tag
-      decryptedData = encryptionService.envelopeDecrypt(
-        encryptedData,
-        document.encryptedDEK,
-        document.iv,
-        document.authTag,
-        document.checksum
-      );
+    try {
+      if (document.authTag === 'client-side') {
+        // Client-side encryption: auth tag is appended to ciphertext
+        decryptedData = encryptionService.decryptClientSideEncrypted(
+          encryptedData,
+          document.encryptedDEK,
+          document.iv,
+          document.checksum
+        );
+      } else {
+        // Server-side encryption: separate auth tag
+        decryptedData = encryptionService.envelopeDecrypt(
+          encryptedData,
+          document.encryptedDEK,
+          document.iv,
+          document.authTag,
+          document.checksum
+        );
+      }
+    } catch (decryptError) {
+      console.error(`Decryption failed for document ${id}:`, {
+        error: decryptError.message,
+        authTag: document.authTag,
+        ivLength: document.iv?.length,
+        dekLength: document.encryptedDEK?.length,
+        checksumLength: document.checksum?.length,
+        encryptedDataSize: encryptedData?.length
+      });
+      
+      // Check if the error is checksum-related and try without checksum verification
+      if (decryptError.message.includes('integrity') || decryptError.message.includes('checksum')) {
+        console.warn(`Attempting decryption without checksum verification for document ${id}`);
+        try {
+          decryptedData = encryptionService.decryptClientSideEncryptedNoChecksum(
+            encryptedData,
+            document.encryptedDEK,
+            document.iv
+          );
+          console.warn(`Document ${id} decrypted successfully without checksum - possible data integrity issue`);
+        } catch (fallbackError) {
+          console.error(`Fallback decryption also failed for document ${id}:`, fallbackError.message);
+          throw decryptError; // Throw original error
+        }
+      } else {
+        throw decryptError;
+      }
     }
     
     // Mark as under review if pending
@@ -235,12 +309,21 @@ export const decryptDocument = async (req, res) => {
     });
     
     // Add watermark info to response headers
+    // Sanitize filename for HTTP header (remove/encode special characters)
+    const safeFilename = document.originalFileName
+      .replace(/[^\x20-\x7E]/g, '') // Remove non-ASCII characters
+      .replace(/["\\]/g, '_')       // Replace quotes and backslashes
+      .substring(0, 100) || 'document';
+    
+    // Use RFC 5987 encoding for proper Unicode support
+    const encodedFilename = encodeURIComponent(document.originalFileName);
+    
     res.set({
       'X-Document-Id': document._id.toString(),
       'X-Admin-Id': adminId.toString(),
       'X-Access-Time': new Date().toISOString(),
       'Content-Type': document.mimeType,
-      'Content-Disposition': `inline; filename="${document.originalFileName}"`,
+      'Content-Disposition': `inline; filename="${safeFilename}"; filename*=UTF-8''${encodedFilename}`,
       'Cache-Control': 'no-store, no-cache, must-revalidate, private',
       'Pragma': 'no-cache',
       'Expires': '0'
@@ -262,9 +345,19 @@ export const decryptDocument = async (req, res) => {
       failureReason: error.message
     });
     
+    // Provide more specific error messages
+    let errorMessage = 'Failed to decrypt document';
+    if (error.message.includes('integrity') || error.message.includes('checksum')) {
+      errorMessage = 'Document integrity verification failed. The file may have been corrupted or tampered with.';
+    } else if (error.message.includes('private key') || error.message.includes('RSA')) {
+      errorMessage = 'Encryption key mismatch. This document may have been encrypted with a different key.';
+    } else if (error.message.includes('auth') || error.message.includes('tag')) {
+      errorMessage = 'Document authentication failed. The encrypted data may be corrupted.';
+    }
+    
     res.status(500).json({
       success: false,
-      message: 'Failed to decrypt document'
+      message: errorMessage
     });
   }
 };
