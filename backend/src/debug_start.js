@@ -10,7 +10,6 @@ import connectDatabase from './config/database.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 
 // Import routes
-import authRoutes from './routes/authRoutes.js';
 import studentRoutes from './routes/studentRoutes.js';
 import resultRoutes from './routes/resultRoutes.js';
 
@@ -79,7 +78,7 @@ import adminStudentRoutes from './routes/adminStudentRoutes.js';
 console.log('DEBUG: Imports done');
 
 // API routes
-app.use('/api/auth', authRoutes);
+// API routes
 console.log('DEBUG: Auth routes used');
 app.use('/api/admin/auth', adminRoutes); // Admin Auth Routes
 console.log('DEBUG: Admin Auth routes used');

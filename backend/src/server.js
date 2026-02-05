@@ -10,7 +10,6 @@ import connectDatabase from './config/database.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 
 // Import routes
-import authRoutes from './routes/authRoutes.js';
 import studentRoutes from './routes/studentRoutes.js';
 import resultRoutes from './routes/resultRoutes.js';
 
@@ -75,8 +74,7 @@ import adminResultRoutes from './routes/adminResultRoutes.js';
 import adminStudentRoutes from './routes/adminStudentRoutes.js';
 
 // API routes
-app.use('/api/auth', authRoutes);
-app.use('/api/admin/auth', adminRoutes); // Admin Auth Routes
+app.use('/api/admin', adminRoutes); // Admin Auth Routes (includes /login, /change-password)
 app.use('/api/students', studentRoutes); // Protected by middleware inside routes
 app.use('/api/results', resultRoutes); // Public Check Route inside, Public Controller inside
 app.use('/api/admin/results', adminResultRoutes); // Admin Management Routes
@@ -92,7 +90,6 @@ app.use('/api/notices', noticeRoutes);
 // Document Verification Routes (Secure Document Upload System)
 import documentRoutes from './routes/documentRoutes.js';
 import adminDocumentRoutes from './routes/adminDocumentRoutes.js';
-import grievanceRoutes from './routes/grievanceRoutes.js';
 import { initEncryptionService } from './services/encryptionService.js';
 
 // Initialize services
@@ -103,7 +100,6 @@ initEncryptionService().catch(err => {
 
 app.use('/api/documents', documentRoutes);
 app.use('/api/admin/documents', adminDocumentRoutes);
-app.use('/api/grievances', grievanceRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {

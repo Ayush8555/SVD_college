@@ -1,5 +1,4 @@
 import Student from '../models/Student.js';
-import User from '../models/User.js';
 
 /**
  * @desc    Get all students (with filters)
@@ -219,20 +218,6 @@ export const createStudent = async (req, res) => {
     // Create student
     const student = await Student.create(studentData);
 
-    // Create user account for student (optional)
-    if (studentData.createAccount) {
-      const defaultPassword = studentData.dateOfBirth
-        ? new Date(studentData.dateOfBirth).toISOString().split('T')[0].replace(/-/g, '')
-        : 'Student@123';
-
-      await User.create({
-        email: studentData.email,
-        password: defaultPassword,
-        role: 'student',
-        studentId: student._id,
-      });
-    }
-
     res.status(201).json({
       success: true,
       message: 'Student created successfully',
@@ -295,9 +280,6 @@ export const deleteStudent = async (req, res) => {
         message: 'Student not found',
       });
     }
-
-    // Also delete associated user account
-    await User.findOneAndDelete({ studentId: student._id });
 
     res.status(200).json({
       success: true,
