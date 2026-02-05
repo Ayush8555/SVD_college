@@ -52,10 +52,10 @@ describe('Authentication API', () => {
         await mongoose.connection.close();
     });
 
-    describe('POST /api/admin/auth/login', () => {
+    describe('POST /api/admin/login', () => {
         it('should login admin with valid credentials', async () => {
             const res = await request(app)
-                .post('/api/admin/auth/login')
+                .post('/api/admin/login')
                 .send({
                     employeeId: adminData.employeeId,
                     password: adminData.password
@@ -68,7 +68,7 @@ describe('Authentication API', () => {
 
         it('should reject invalid password', async () => {
             const res = await request(app)
-                .post('/api/admin/auth/login')
+                .post('/api/admin/login')
                 .send({
                     employeeId: adminData.employeeId,
                     password: 'wrongpassword'

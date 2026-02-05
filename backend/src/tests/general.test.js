@@ -38,7 +38,7 @@ describe('General Public APIs', () => {
             });
             
             const login = await request(app)
-                .post('/api/admin/auth/login')
+                .post('/api/admin/login')
                 .send({ employeeId: 'COURSE_ADM', password: 'password123' });
             adminToken = login.body.token;
 

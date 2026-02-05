@@ -55,7 +55,7 @@ describe('Document System API', () => {
         // Create Admin & Get Token
         const admin = await Admin.create(adminData);
         const adminLogin = await request(app)
-            .post('/api/admin/auth/login')
+            .post('/api/admin/login')
             .send({ employeeId: adminData.employeeId, password: adminData.password });
         adminToken = adminLogin.body.token;
 

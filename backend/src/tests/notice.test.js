@@ -87,7 +87,7 @@ describe('Notice Board API Routes', () => {
             const newNotice = {
                 title: 'Exam Schedule',
                 content: 'Final exams start next week',
-                type: 'Exam',
+                category: 'Exam',
                 priority: 'High'
             };
 
@@ -99,7 +99,7 @@ describe('Notice Board API Routes', () => {
             expect(res.statusCode).toBe(201);
             expect(res.body.success).toBe(true);
             expect(res.body.data.title).toBe(newNotice.title);
-            expect(res.body.data.type).toBe(newNotice.type);
+            expect(res.body.data.category).toBe(newNotice.category);
             expect(res.body.data.isActive).toBe(true); // Default
         });
 

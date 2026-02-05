@@ -21,5 +21,8 @@
   "overrides": {
     "react": "19.0.0",
     "react-dom": "19.0.0"
+  },
+  "dependencies": {
+    "three-stdlib": "^2.36.1"
   }
 }
