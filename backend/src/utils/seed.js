@@ -109,14 +109,17 @@ const seedDatabase = async () => {
     // Given I don't see the Admin model code right now, I'll update it to check or just store 'admin'.
     // If Admin schema has pre('save'), it will hash.
     
+    // Admin credentials from environment variables for security
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    const adminEmployeeId = process.env.ADMIN_EMPLOYEE_ID || 'SVD001';
+    
     await Admin.create({
         firstName: 'Principal',
         lastName: 'Office',
         email: 'admin@svd.com',
-        // Password and ID updated per user request
-        password: '${ADMIN_PASSWORD}', 
+        password: adminPassword, 
         designation: 'Principal',
-        employeeId: '${ADMIN_EMPLOYEE_ID}',
+        employeeId: adminEmployeeId,
         role: 'admin'
     });
     
@@ -203,7 +206,7 @@ const seedDatabase = async () => {
     console.log('Login Details:');
     console.log('Admin URL:   /admin/login');
     console.log('--------------------------------------------------');
-    console.log(`Admin Creds: ${ADMIN_EMPLOYEE_ID} / ${ADMIN_PASSWORD}`);
+    console.log(`Admin Creds: ${adminEmployeeId} / [FROM ENV]`);
     console.log('--------------------------------------------------');
     console.log('Student URL: /student/login');
     console.log(`Student 1:   ${createdStudents[0].rollNumber} / ${createdStudents[0].password} (DOB YYYYMMDD)`);
