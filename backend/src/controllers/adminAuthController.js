@@ -162,3 +162,74 @@ export const registerFirstAdmin = async (req, res) => {
         });
     }
 };
+
+/**
+ * @desc    Change Admin Password
+ * @route   PUT /api/admin/change-password
+ * @access  Private
+ */
+export const changePassword = async (req, res) => {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    // Validate inputs
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        return res.status(400).json({
+            success: false,
+            message: 'All fields are required'
+        });
+    }
+
+    if (newPassword !== confirmPassword) {
+        return res.status(400).json({
+            success: false,
+            message: 'New password and confirm password do not match'
+        });
+    }
+
+    if (newPassword.length < 6) {
+        return res.status(400).json({
+            success: false,
+            message: 'Password must be at least 6 characters long'
+        });
+    }
+
+    try {
+        // Get admin with password
+        const admin = await Admin.findById(req.user.id).select('+password');
+
+        if (!admin) {
+            return res.status(404).json({
+                success: false,
+                message: 'Admin not found'
+            });
+        }
+
+        // Verify current password
+        const isMatch = await admin.matchPassword(currentPassword);
+
+        if (!isMatch) {
+            return res.status(401).json({
+                success: false,
+                message: 'Current password is incorrect'
+            });
+        }
+
+        // Update password (pre-save hook will hash it)
+        admin.password = newPassword;
+        await admin.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Password changed successfully'
+        });
+
+    } catch (error) {
+        console.error('Change Password Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to change password',
+            error: error.message
+        });
+    }
+};
+
