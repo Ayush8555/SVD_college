@@ -8,8 +8,8 @@
     "frontend"
   ],
   "scripts": {
-    "build": "bash production_build.sh",
-    "start": "cd backend && npm start",
+    "build": "npm run build --workspace=frontend",
+    "start": "npm start --workspace=backend",
     "postinstall": "echo 'Workspaces installed'"
   },
   "keywords": [],
