@@ -18,26 +18,23 @@ const StarField = () => {
 
 const CustomParticles = (props) => {
     const ref = useRef();
+    const count = props.count || 1000;
     
-    // Generate particles in a galaxy-like spiral
+    // Generate particles in a random distribution
     const positions = useMemo(() => {
-        const count = 1000; // Reduced for performance
         const temp = new Float32Array(count * 3);
         
         for (let i = 0; i < count; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            const radius = 3 + Math.random() * 7; // Ring-like structure
-            
-            const x = Math.cos(angle) * radius + (Math.random() - 0.5) * 0.5;
-            const y = (Math.random() - 0.5) * 1.5;
-            const z = Math.sin(angle) * radius + (Math.random() - 0.5) * 0.5;
+            const x = (Math.random() - 0.5) * 20; // Spread out randomly
+            const y = (Math.random() - 0.5) * 20;
+            const z = (Math.random() - 0.5) * 20;
 
             temp[i * 3] = x;
             temp[i * 3 + 1] = y;
             temp[i * 3 + 2] = z;
         }
         return temp;
-    }, []);
+    }, [count]);
 
     useFrame((state, delta) => {
         if (ref.current) {
@@ -65,6 +62,21 @@ const CustomParticles = (props) => {
 
 
 const Background3D = React.memo(() => {
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+        setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Performance optimization: fewer particles on mobile
+  const particleCount = isMobile ? 400 : 2000; // Balanced for desktop
+  const starCount = isMobile ? 1000 : 2000;    // As requested
+
   return (
     <div className="absolute inset-0 -z-10 h-full w-full bg-[#0f172a] overflow-hidden">
       <Canvas dpr={[1, 1]} camera={{ position: [0, 0, 5], fov: 60 }} gl={{ powerPreference: "high-performance", antialias: false, stencil: false, depth: false }}>
@@ -73,8 +85,16 @@ const Background3D = React.memo(() => {
         <pointLight position={[10, 10, 10]} intensity={1.5} color="#fbbf24" />
         <pointLight position={[-10, -10, -10]} intensity={1} color="#4338ca" />
         
-        <StarField />
-        <CustomParticles />
+        <Stars 
+          radius={100} 
+          depth={50} 
+          count={starCount} 
+          factor={4} 
+          saturation={0} 
+          fade 
+          speed={3} // Faster twinkling 
+        />
+        <CustomParticles count={particleCount} />
       </Canvas>
       <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-[#0f172a] opacity-80 pointer-events-none"></div>
     </div>

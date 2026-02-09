@@ -252,7 +252,7 @@ const Home = () => {
                                     alt="SVD Gurukul Campus" 
                                     className="relative rounded-[2rem] shadow-2xl w-full h-[500px] object-cover border-8 border-white"
                                 />
-                                <div className="absolute -bottom-8 -right-8 bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex gap-4 items-center animate-bounceSubtle">
+                                <div className="absolute -bottom-8 right-4 lg:-right-8 bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex gap-4 items-center animate-bounceSubtle">
                                     <div className="bg-orange-100 p-4 rounded-xl text-orange-600">
                                         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     </div>

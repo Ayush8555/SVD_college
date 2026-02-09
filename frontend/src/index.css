@@ -382,6 +382,21 @@ html {
   background: rgba(0, 0, 0, 0.25);
 }
 
+/* ===== CUSTOM UTILITY SCROLLBAR ===== */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.02);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.1);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.2);
+}
+
 /* Firefox scrollbar */
 * {
   scrollbar-width: thin;

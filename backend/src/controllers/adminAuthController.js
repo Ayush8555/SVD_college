@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin.js';
 import { validationResult } from 'express-validator';
-
 /**
  * @desc    Auth Admin & Get Token
  * @route   POST /api/admin/login
@@ -13,13 +12,10 @@ export const loginAdmin = async (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ success: false, errors: errors.array() });
   }
-
   const { employeeId, password } = req.body;
-
   try {
     // Check if admin exists
     const admin = await Admin.findOne({ employeeId }).select('+password');
-
     if (!admin) {
       console.log(`Admin Login Failed: Admin not found for ${employeeId}`);
       return res.status(401).json({
@@ -27,10 +23,8 @@ export const loginAdmin = async (req, res) => {
         message: 'Invalid credentials. Admin ID not found.',
       });
     }
-
     // Check password
     const isMatch = await admin.matchPassword(password);
-
     if (!isMatch) {
       return res.status(401).json({
         success: false,
@@ -232,4 +226,8 @@ export const changePassword = async (req, res) => {
         });
     }
 };
+
+
+
+
 

@@ -25,7 +25,9 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // Security middleware
-app.use(helmet()); // Set security headers
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow images to be loaded from different origins
+}));
 
 // CORS configuration
 app.use(

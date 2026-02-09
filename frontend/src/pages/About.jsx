@@ -30,9 +30,9 @@ const About = () => {
                         initial="hidden"
                         animate="visible"
                         variants={stagger}
-                        className="text-center mb-16"
+                        className="text-center mb-10 md:mb-16"
                     >
-                        <motion.h1 variants={fadeInUp} className="text-5xl md:text-6xl font-heading font-extrabold text-white mb-6 text-shadow-lg">
+                        <motion.h1 variants={fadeInUp} className="text-3xl md:text-6xl font-heading font-extrabold text-white mb-4 md:mb-6 text-shadow-lg">
                             About SVD Gurukul
                         </motion.h1>
                         <motion.div variants={fadeInUp} className="w-24 h-1.5 bg-gradient-to-r from-orange-500 to-amber-500 mx-auto rounded-full shadow-lg"></motion.div>
@@ -57,7 +57,7 @@ const About = () => {
                             </motion.span>
 
                             {/* Heading */}
-                            <h2 className="text-3xl md:text-5xl font-heading font-bold text-white mb-4 leading-tight text-shadow-lg">
+                            <h2 className="text-2xl md:text-5xl font-heading font-bold text-white mb-4 leading-tight text-shadow-lg">
                                 A Place Where{' '}
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400">
                                     Dreams
@@ -114,26 +114,27 @@ const About = () => {
                         </div>
                     </motion.div>
 
-                    {/* About Content Section */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start mb-20">
+                    {/* About Content Section - Full Width Horizontal */}
+                    <div className="mb-20">
                         <motion.div 
-                            initial={{ opacity: 0, x: 50 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.8, delay: 0.2 }}
-                            className="space-y-8 bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-lg border border-white/40"
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8 }}
+                            className="bg-white/80 backdrop-blur-md p-8 md:p-12 rounded-3xl shadow-lg border border-white/40"
                         >
-                            <h2 className="text-3xl font-bold text-slate-900 leading-tight">
-                                Shaping Futures with <br />
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Holistic Education</span>
-                            </h2>
-                            <p className="text-slate-600 leading-relaxed text-lg">
-                                SVD Gurukul Mahavidyalaya is more than just an educational institution; it is a center for culture and knowledge. Located in the serene environment of Dumduma, Unchgaon, Jaunpur, we are affiliated with the State University and committed to providing quality education.
-                            </p>
-                            <p className="text-slate-600 leading-relaxed text-lg">
-                                Our campus features state-of-the-art classrooms, a digital library, and a dedicated team of faculty members who mentor students to achieve their highest potential in Arts, Science, and Education.
-                            </p>
-                            
-                            
+                            <div className="max-w-4xl mx-auto space-y-8 text-center md:text-left">
+                                <h2 className="text-2xl md:text-4xl font-bold text-slate-900 leading-tight">
+                                    Shaping Futures with <br />
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Holistic Education</span>
+                                </h2>
+                                <p className="text-slate-600 leading-relaxed text-lg">
+                                    SVD Gurukul Mahavidyalaya is more than just an educational institution; it is a center for culture and knowledge. Located in the serene environment of Dumduma, Unchgaon, Jaunpur, we are affiliated with the State University and committed to providing quality education.
+                                </p>
+                                <p className="text-slate-600 leading-relaxed text-lg">
+                                    Our campus features state-of-the-art classrooms, a digital library, and a dedicated team of faculty members who mentor students to achieve their highest potential in Arts, Science, and Education.
+                                </p>
+                            </div>
                         </motion.div>
                     </div>
 
@@ -171,12 +172,12 @@ const About = () => {
                         initial={{ opacity: 0, scale: 0.9 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
-                        className="bg-gradient-to-r from-blue-900 to-indigo-900 rounded-3xl p-12 text-center text-white relative overflow-hidden shadow-2xl"
+                        className="bg-gradient-to-r from-blue-900 to-indigo-900 rounded-3xl p-6 md:p-12 text-center text-white relative overflow-hidden shadow-2xl"
                     >
                         <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]"></div>
                         <div className="relative z-10 max-w-4xl mx-auto">
-                            <span className="text-6xl block mb-6 opacity-30">"</span>
-                            <h2 className="text-3xl md:text-4xl font-bold mb-8 leading-normal font-heading">
+                            <span className="text-4xl md:text-6xl block mb-4 md:mb-6 opacity-30">"</span>
+                            <h2 className="text-lg md:text-4xl font-bold mb-6 md:mb-8 leading-relaxed font-heading">
                                 "Education is not just about acquiring knowledge, but about building character. At SVD Gurukul, we strive to create an environment where values meet supreme intellect."
                             </h2>
                             <div className="flex items-center justify-center gap-4">

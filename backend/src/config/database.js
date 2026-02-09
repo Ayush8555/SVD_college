@@ -43,5 +43,4 @@ const connectDatabase = async (retries = 5) => {
     }
   }
 };
-
 export default connectDatabase;

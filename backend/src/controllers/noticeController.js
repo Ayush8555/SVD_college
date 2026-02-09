@@ -1,4 +1,6 @@
 import Notice from '../models/Notice.js';
+import fs from 'fs';
+import path from 'path';
 
 // @desc    Get all notices
 // @route   GET /api/notices
@@ -66,7 +68,7 @@ export const createNotice = async (req, res) => {
     let imageUrl = null;
 
     if (req.file) {
-      imageUrl = `/uploads/public/notices/${req.file.filename}`;
+      imageUrl = req.file.path; // Cloudinary URL
     }
 
     const notice = await Notice.create({
@@ -92,8 +94,7 @@ export const createNotice = async (req, res) => {
   }
 };
 
-import fs from 'fs';
-import path from 'path';
+import { cloudinary } from '../config/cloudinary.js';
 
 // @desc    Delete a notice
 // @route   DELETE /api/notices/:id
@@ -109,11 +110,26 @@ export const deleteNotice = async (req, res) => {
       });
     }
 
-    // Delete image file if exists
+    // Delete image/file
     if (notice.imageUrl) {
-      const imagePath = path.join(process.cwd(), notice.imageUrl);
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
+      if (notice.imageUrl.startsWith('/uploads/')) {
+        // Delete local file
+        const filePath = path.join(process.cwd(), notice.imageUrl);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      } else {
+        // Delete from Cloudinary
+        const parts = notice.imageUrl.split('/');
+        const filename = parts[parts.length - 1];
+        const publicId = `college_result_system/notices/${filename.split('.')[0]}`;
+        try {
+          // Detect if it was a raw file (PDF) or image based on extension
+          const isPdf = filename.toLowerCase().endsWith('.pdf');
+          await cloudinary.uploader.destroy(publicId, { resource_type: isPdf ? 'raw' : 'image' });
+        } catch (cloudinaryError) {
+          console.error('Failed to delete old file from Cloudinary:', cloudinaryError);
+        }
       }
     }
 
@@ -161,3 +177,70 @@ export const toggleNoticeStatus = async (req, res) => {
     });
   }
 };
+
+// @desc    Update a notice
+// @route   PUT /api/notices/:id
+// @access  Private/Admin
+export const updateNotice = async (req, res) => {
+  try {
+    const notice = await Notice.findById(req.params.id);
+
+    if (!notice) {
+      return res.status(404).json({
+        success: false,
+        message: 'Notice not found'
+      });
+    }
+
+    const { title, content, category, priority, eventDate } = req.body;
+
+    // Update text fields
+    if (title) notice.title = title;
+    if (content) notice.content = content;
+    if (category) notice.category = category;
+    if (priority) notice.priority = priority;
+    if (eventDate) notice.eventDate = eventDate;
+
+    // Handle file update
+    if (req.file) {
+      // Delete old file
+      if (notice.imageUrl) {
+        if (notice.imageUrl.startsWith('/uploads/')) {
+           // Delete local file
+           const oldPath = path.join(process.cwd(), notice.imageUrl);
+           if (fs.existsSync(oldPath)) {
+             fs.unlinkSync(oldPath);
+           }
+        } else {
+           // Delete from Cloudinary
+           const parts = notice.imageUrl.split('/');
+           const filename = parts[parts.length - 1];
+           const publicId = `college_result_system/notices/${filename.split('.')[0]}`;
+           try {
+             const isPdf = filename.toLowerCase().endsWith('.pdf');
+             await cloudinary.uploader.destroy(publicId, { resource_type: isPdf ? 'raw' : 'image' });
+           } catch (cloudinaryError) {
+             console.error('Failed to delete old file from Cloudinary:', cloudinaryError);
+           }
+        }
+      }
+      
+      // Set new Cloudinary URL
+      notice.imageUrl = req.file.path;
+    }
+
+    await notice.save();
+
+    res.status(200).json({
+      success: true,
+      data: notice
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server Error',
+      error: error.message
+    });
+  }
+};
+

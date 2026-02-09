@@ -10,14 +10,16 @@ const NoticesTab = () => {
     const [notices, setNotices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingNotice, setEditingNotice] = useState(null); // null = create mode, object = edit mode
     const [formData, setFormData] = useState({
         title: '',
         content: '',
         type: 'General',
         priority: 'Medium'
     });
-    const [imageFile, setImageFile] = useState(null);
-    const [imagePreview, setImagePreview] = useState(null);
+    const [file, setFile] = useState(null);
+    const [filePreview, setFilePreview] = useState(null);
+    const [existingFileUrl, setExistingFileUrl] = useState(null);
     const toast = useToast();
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
@@ -68,6 +70,20 @@ const NoticesTab = () => {
         }
     };
 
+    const handleEdit = (notice) => {
+        setEditingNotice(notice);
+        setFormData({
+            title: notice.title,
+            content: notice.content,
+            type: notice.category || notice.type || 'General',
+            priority: notice.priority || 'Medium'
+        });
+        setExistingFileUrl(notice.imageUrl || null);
+        setFile(null);
+        setFilePreview(null);
+        setIsModalOpen(true);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -79,42 +95,71 @@ const NoticesTab = () => {
             data.append('content', formData.content);
             data.append('category', formData.type);
             data.append('priority', formData.priority);
-            if (imageFile) {
-                data.append('image', imageFile);
+            if (file) {
+                data.append('image', file);
             }
-            
-            const res = await axios.post(`${API_URL}/notices`, data, {
-                headers: { 
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-            setNotices([res.data.data, ...notices]);
-            toast.success('Notice published successfully');
+
+            if (editingNotice) {
+                // Update existing notice
+                const res = await axios.put(`${API_URL}/notices/${editingNotice._id}`, data, {
+                    headers: { 
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+                setNotices(notices.map(n => n._id === editingNotice._id ? res.data.data : n));
+                toast.success('Notice updated successfully');
+            } else {
+                // Create new notice
+                const res = await axios.post(`${API_URL}/notices`, data, {
+                    headers: { 
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+                setNotices([res.data.data, ...notices]);
+                toast.success('Notice published successfully');
+            }
             closeModal();
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Failed to publish notice');
+            toast.error(err.response?.data?.message || 'Failed to save notice');
         }
     };
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setImageFile(file);
-            setImagePreview(URL.createObjectURL(file));
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        if (selectedFile) {
+            setFile(selectedFile);
+            // Create preview for images, show filename for PDFs
+            if (selectedFile.type.startsWith('image/')) {
+                setFilePreview(URL.createObjectURL(selectedFile));
+            } else {
+                setFilePreview(null); // PDFs don't have image preview
+            }
+            setExistingFileUrl(null); // Clear existing file when new one is selected
         }
     };
 
-    const removeImage = () => {
-        setImageFile(null);
-        setImagePreview(null);
+    const removeFile = () => {
+        setFile(null);
+        setFilePreview(null);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
+        setEditingNotice(null);
         setFormData({ title: '', content: '', type: 'General', priority: 'Medium' });
-        setImageFile(null);
-        setImagePreview(null);
+        setFile(null);
+        setFilePreview(null);
+        setExistingFileUrl(null);
+    };
+
+    const getFileType = (url) => {
+        if (!url) return null;
+        const ext = url.split('.').pop().toLowerCase();
+        if (['pdf'].includes(ext)) return 'pdf';
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return 'image';
+        return 'file';
     };
 
     return (
@@ -131,6 +176,9 @@ const NoticesTab = () => {
                 {notices.map((notice) => (
                     <Card key={notice._id} className={`relative border-l-4 ${notice.isActive ? 'border-l-green-500' : 'border-l-gray-300'} hover:shadow-lg transition-shadow`}>
                         <div className="absolute top-4 right-4 flex gap-2 z-10">
+                             <button onClick={() => handleEdit(notice)} title="Edit" className="p-1 rounded-full text-blue-600 bg-blue-100 hover:bg-blue-200">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                             </button>
                              <button onClick={() => handleToggleStatus(notice._id)} title={notice.isActive ? "Hide" : "Show"} className={`p-1 rounded-full ${notice.isActive ? 'text-green-600 bg-green-100' : 'text-gray-400 bg-gray-100'}`}>
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                              </button>
@@ -141,19 +189,24 @@ const NoticesTab = () => {
 
                         <div className="mb-2">
                             <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                                notice.type === 'Urgent' ? 'bg-red-100 text-red-800' :
-                                notice.type === 'Holiday' ? 'bg-purple-100 text-purple-800' :
-                                notice.type === 'Exam' ? 'bg-blue-100 text-blue-800' :
+                                notice.category === 'Urgent' || notice.type === 'Urgent' ? 'bg-red-100 text-red-800' :
+                                notice.category === 'Holiday' || notice.type === 'Holiday' ? 'bg-purple-100 text-purple-800' :
+                                notice.category === 'Exam' || notice.type === 'Exam' ? 'bg-blue-100 text-blue-800' :
                                 'bg-gray-100 text-gray-800'
                             }`}>
-                                {notice.type}
+                                {notice.category || notice.type}
                             </span>
                             <span className="text-xs text-gray-500 ml-2">
                                 {new Date(notice.createdAt).toLocaleDateString()}
                             </span>
+                            {notice.imageUrl && (
+                                <span className={`text-xs ml-2 px-2 py-0.5 rounded ${getFileType(notice.imageUrl) === 'pdf' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
+                                    {getFileType(notice.imageUrl) === 'pdf' ? '📄 PDF' : '🖼️ Image'}
+                                </span>
+                            )}
                         </div>
 
-                        <h3 className="text-lg font-bold text-gray-900 mb-2 pr-12">{notice.title}</h3>
+                        <h3 className="text-lg font-bold text-gray-900 mb-2 pr-20">{notice.title}</h3>
                         <p className="text-gray-600 text-sm mb-4 line-clamp-3">{notice.content}</p>
                         
                         {!notice.isActive && (
@@ -173,10 +226,10 @@ const NoticesTab = () => {
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden"
+                            className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden max-h-[90vh] overflow-y-auto"
                         >
-                            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                                <h2 className="text-xl font-bold">Publish New Notice</h2>
+                            <div className="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
+                                <h2 className="text-xl font-bold">{editingNotice ? 'Edit Notice' : 'Publish New Notice'}</h2>
                                 <button onClick={closeModal} className="text-gray-400 hover:text-gray-600">✕</button>
                             </div>
                             
@@ -214,6 +267,8 @@ const NoticesTab = () => {
                                             <option>Holiday</option>
                                             <option>Exam</option>
                                             <option>Event</option>
+                                            <option>Academic</option>
+                                            <option>Admissions</option>
                                         </select>
                                     </div>
                                     <div>
@@ -230,34 +285,67 @@ const NoticesTab = () => {
                                     </div>
                                 </div>
 
-                                {/* Image Upload Section */}
+                                {/* File Upload Section */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Attach Image (Optional)</label>
-                                    {!imagePreview ? (
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Attach File (Image or PDF)
+                                    </label>
+                                    
+                                    {/* Show existing file in edit mode */}
+                                    {existingFileUrl && !file && (
+                                        <div className="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-2xl ${getFileType(existingFileUrl) === 'pdf' ? '' : ''}`}>
+                                                        {getFileType(existingFileUrl) === 'pdf' ? '📄' : '🖼️'}
+                                                    </span>
+                                                    <div>
+                                                        <p className="text-sm font-medium text-gray-700">Current Attachment</p>
+                                                        <a href={existingFileUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">
+                                                            View current file →
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <span className="text-xs text-gray-400">Upload new to replace</span>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {!file ? (
                                         <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-500 hover:bg-gray-50 transition-all">
                                             <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                                 <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                                 </svg>
-                                                <p className="text-sm text-gray-500">Click to upload an image</p>
+                                                <p className="text-sm text-gray-500">Click to upload Image or PDF</p>
+                                                <p className="text-xs text-gray-400 mt-1">JPG, PNG, PDF up to 10MB</p>
                                             </div>
                                             <input 
                                                 type="file" 
                                                 className="hidden" 
-                                                accept="image/*"
-                                                onChange={handleImageChange}
+                                                accept="image/*,.pdf"
+                                                onChange={handleFileChange}
                                             />
                                         </label>
                                     ) : (
                                         <div className="relative">
-                                            <img 
-                                                src={imagePreview} 
-                                                alt="Preview" 
-                                                className="w-full h-32 object-cover rounded-lg border border-gray-200"
-                                            />
+                                            {filePreview ? (
+                                                <img 
+                                                    src={filePreview} 
+                                                    alt="Preview" 
+                                                    className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-32 bg-red-50 rounded-lg border border-red-200 flex items-center justify-center">
+                                                    <div className="text-center">
+                                                        <span className="text-4xl">📄</span>
+                                                        <p className="text-sm text-red-600 mt-1">{file.name}</p>
+                                                    </div>
+                                                </div>
+                                            )}
                                             <button 
                                                 type="button"
-                                                onClick={removeImage}
+                                                onClick={removeFile}
                                                 className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                                             >
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -270,7 +358,7 @@ const NoticesTab = () => {
 
                                 <div className="flex gap-3 pt-4">
                                     <Button type="button" variant="outline" className="flex-1" onClick={closeModal}>Cancel</Button>
-                                    <Button type="submit" className="flex-1">Publish</Button>
+                                    <Button type="submit" className="flex-1">{editingNotice ? 'Update' : 'Publish'}</Button>
                                 </div>
                             </form>
                         </motion.div>
