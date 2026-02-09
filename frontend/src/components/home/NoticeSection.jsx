@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { getViewUrl } from '../../utils/fileHelpers';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
@@ -174,6 +175,7 @@ const NoticeSection = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                     viewport={{ once: true }}
+                    onClick={() => window.open(getViewUrl(notice.imageUrl), '_blank')}
                     className="group px-5 py-4 hover:bg-white/60 transition-all cursor-pointer border-l-4 border-transparent hover:border-blue-500"
                   >
                     <div className="flex items-start gap-3">

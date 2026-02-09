@@ -20,10 +20,21 @@ const storage = new CloudinaryStorage({
     return {
       folder: 'college_result_system/notices',
       allowed_formats: ['jpg', 'jpeg', 'png', 'pdf'],
-      resource_type: 'auto', // Auto-detect to allow PDF previews and image optimization
+      resource_type: file.mimetype === 'application/pdf' ? 'raw' : 'image',
       access_mode: 'public',
-      use_filename: true, // Use original filename for better SEO/UX
-      unique_filename: true,
+      public_id: (req, file) => {
+        // Generate custom filename: SVD_Gurukul_Notice_<Title>_<Timestamp>
+        const title = req.body.title ? req.body.title.replace(/[^a-zA-Z0-9]/g, '_') : 'Notice';
+        const timestamp = Date.now();
+        let name = `SVD_Gurukul_Notice_${title}_${timestamp}`;
+        
+        // For raw files (PDFs), append extension manually
+        if (file.mimetype === 'application/pdf') {
+            name = `${name}.pdf`;
+        }
+        return name;
+      },
+      unique_filename: false, // Use our custom public_id exactly as is
     };
   },
 });

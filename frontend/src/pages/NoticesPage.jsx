@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import noticesHeroBg from '../assets/notices-hero-bg.png';
+import { getViewUrl, getFileType, getFileSize } from '../utils/fileHelpers';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
@@ -35,32 +36,7 @@ const NoticesPage = () => {
         });
     };
 
-    // Helper to get file size (mock implementation if not available)
-    const getFileSize = (size) => {
-        if (!size) return '264 KB'; // Placeholder as per reference image
-        return `${(size / 1024).toFixed(1)} KB`;
-    };
 
-    // Helper to detect file type from URL
-    const getFileType = (url) => {
-        if (!url) return null;
-        // Cloudinary raw URLs (for PDFs) don't have extensions
-        if (url.includes('/raw/upload/')) return 'pdf';
-        const ext = url.split('.').pop().toLowerCase().split('?')[0];
-        if (['pdf'].includes(ext)) return 'pdf';
-        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return 'image';
-        return 'file';
-    };
-
-    // Helper to get view URL - Opens directly in browser (Cloudinary handles PDF viewing)
-    const getViewUrl = (url) => {
-        if (!url) return url;
-        const fullUrl = url.startsWith('http') ? url : `${API_URL.replace('/api', '')}${url}`;
-        
-        // Removed Google Docs Viewer as it often fails with "No preview available"
-        // Cloudinary URLs (resource_type: auto/image) open fine in browser
-        return fullUrl;
-    };
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 font-sans flex flex-col relative overflow-x-hidden text-slate-800">
