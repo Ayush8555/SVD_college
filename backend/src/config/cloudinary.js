@@ -17,23 +17,25 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
     const isPdf = file.mimetype === 'application/pdf';
+
+    // Generate custom filename: SVD_Gurukul_Notice_<Title>_<Timestamp>
+    // Sanitize title: replace non-alphanumeric with _, trim to avoid trailing spaces
+    const rawTitle = req.body.title || 'Notice';
+    const title = rawTitle.replace(/[^a-zA-Z0-9]/g, '_');
+    const timestamp = Date.now();
+    let publicIdName = `SVD_Gurukul_Notice_${title}_${timestamp}`;
+
+    // For raw files (PDFs), append extension manually
+    if (isPdf) {
+        publicIdName = `${publicIdName}.pdf`;
+    }
+
     return {
       folder: 'college_result_system/notices',
       allowed_formats: ['jpg', 'jpeg', 'png', 'pdf'],
-      resource_type: file.mimetype === 'application/pdf' ? 'raw' : 'image',
+      resource_type: isPdf ? 'raw' : 'image',
       access_mode: 'public',
-      public_id: (req, file) => {
-        // Generate custom filename: SVD_Gurukul_Notice_<Title>_<Timestamp>
-        const title = req.body.title ? req.body.title.replace(/[^a-zA-Z0-9]/g, '_') : 'Notice';
-        const timestamp = Date.now();
-        let name = `SVD_Gurukul_Notice_${title}_${timestamp}`;
-        
-        // For raw files (PDFs), append extension manually
-        if (file.mimetype === 'application/pdf') {
-            name = `${name}.pdf`;
-        }
-        return name;
-      },
+      public_id: publicIdName,
       unique_filename: false, // Use our custom public_id exactly as is
     };
   },
