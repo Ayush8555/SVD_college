@@ -75,7 +75,7 @@ const StudentResultView = () => {
                 result={resultData.result} 
                 student={resultData.student} 
                 collegeName="SVD Gurukul Mahavidyalaya"
-                collegeAddress="Dumduma, Unchgaon, Jaunpur, Uttar Pradesh"
+                collegeAddress="Dumduma, Unchgaon, Jaunpur, Uttar Pradesh - 223102"
             />
         </div>
     );

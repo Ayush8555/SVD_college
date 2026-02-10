@@ -57,7 +57,7 @@ const ResultDisplay = ({ result, student }) => {
                     SVD Gurukul Mahavidyalaya
                 </h1>
                 <p className="text-xs md:text-lg text-primary-600 font-bold uppercase tracking-widest px-2">
-                    Dumduma, Unchgaon, Jaunpur, Uttar Pradesh • Est. 2010
+                    Dumduma, Unchgaon, Jaunpur, Uttar Pradesh - 223102 • Est. 2010
                 </p>
                 <div className="mt-8 relative inline-block max-w-full">
                     <span className="relative z-10 px-4 md:px-8 py-2 bg-white text-lg md:text-xl font-bold text-gray-900 uppercase tracking-wider border-2 border-primary-900 block md:inline-block">

@@ -169,7 +169,7 @@ const Home = () => {
                                 subtitle: "Examination Cell",
                                 desc: "Check semester results and download marksheets instantly.", 
                                 iconType: "result", 
-                                link: "/result", 
+                                link: "/external-result", 
                                 hoverBg: "group-hover:bg-orange-500/25",
                                 iconColor: "text-orange-400",
                                 delay: 0.15
@@ -192,39 +192,49 @@ const Home = () => {
                                 viewport={{ once: true }}
                                 transition={{ delay: item.delay, duration: 0.5 }}
                             >
-                                <Link to={item.link} className="group block h-full">
-                                    <div className={`h-full bg-slate-800/80 ${item.hoverBg} rounded-2xl p-8 hover:-translate-y-1 transition-all duration-300 shadow-lg border border-white/5`}>
-                                        <div className="flex flex-col h-full items-center text-center">
-                                            {/* Icon */}
-                                            <div className="w-16 h-16 mb-5 rounded-full bg-slate-700/50 group-hover:bg-white/20 flex items-center justify-center transition-colors duration-300">
-                                                {item.iconType === 'user' && <svg className={`w-8 h-8 ${item.iconColor} group-hover:text-white transition-colors duration-300`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>}
-                                                {item.iconType === 'result' && <svg className={`w-8 h-8 ${item.iconColor} group-hover:text-white transition-colors duration-300`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
-                                                {item.iconType === 'admin' && <svg className={`w-8 h-8 ${item.iconColor} group-hover:text-white transition-colors duration-300`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>}
-                                            </div>
+                                {(() => {
+                                    const isExternal = item.link.startsWith('http');
+                                    const Wrapper = isExternal ? 'a' : Link;
+                                    const wrapperProps = isExternal 
+                                        ? { href: item.link, target: "_blank", rel: "noopener noreferrer" } 
+                                        : { to: item.link };
+                                    
+                                    return (
+                                        <Wrapper {...wrapperProps} className="group block h-full">
+                                            <div className={`h-full bg-slate-800/80 ${item.hoverBg} rounded-2xl p-8 hover:-translate-y-1 transition-all duration-300 shadow-lg border border-white/5`}>
+                                                <div className="flex flex-col h-full items-center text-center">
+                                                    {/* Icon */}
+                                                    <div className="w-16 h-16 mb-5 rounded-full bg-slate-700/50 group-hover:bg-white/20 flex items-center justify-center transition-colors duration-300">
+                                                        {item.iconType === 'user' && <svg className={`w-8 h-8 ${item.iconColor} group-hover:text-white transition-colors duration-300`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>}
+                                                        {item.iconType === 'result' && <svg className={`w-8 h-8 ${item.iconColor} group-hover:text-white transition-colors duration-300`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
+                                                        {item.iconType === 'admin' && <svg className={`w-8 h-8 ${item.iconColor} group-hover:text-white transition-colors duration-300`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>}
+                                                    </div>
 
-                                            <p className={`text-xs font-semibold uppercase tracking-wider mb-1 ${item.iconColor} group-hover:text-white/70 transition-colors duration-300`}>
-                                                {item.subtitle}
-                                            </p>
-                                            
-                                            <h3 className="text-2xl font-bold text-white mb-3">
-                                                {item.title}
-                                            </h3>
-                                            
-                                            <p className="text-slate-400 group-hover:text-white/80 text-sm mb-6 flex-grow transition-colors duration-300">
-                                                {item.desc}
-                                            </p>
+                                                    <p className={`text-xs font-semibold uppercase tracking-wider mb-1 ${item.iconColor} group-hover:text-white/70 transition-colors duration-300`}>
+                                                        {item.subtitle}
+                                                    </p>
+                                                    
+                                                    <h3 className="text-2xl font-bold text-white mb-3">
+                                                        {item.title}
+                                                    </h3>
+                                                    
+                                                    <p className="text-slate-400 group-hover:text-white/80 text-sm mb-6 flex-grow transition-colors duration-300">
+                                                        {item.desc}
+                                                    </p>
 
-                                            <div className="w-full">
-                                                <div className="w-full py-3 rounded-lg bg-slate-700/50 group-hover:bg-white/20 text-white font-semibold text-base flex items-center justify-center gap-2 transition-colors duration-300">
-                                                    Access Portal
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                                    </svg>
+                                                    <div className="w-full">
+                                                        <div className="w-full py-3 rounded-lg bg-slate-700/50 group-hover:bg-white/20 text-white font-semibold text-base flex items-center justify-center gap-2 transition-colors duration-300">
+                                                            Access Portal
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </Link>
+                                        </Wrapper>
+                                    );
+                                })()}
                             </motion.div>
                         ))}
                     </div>
@@ -327,7 +337,7 @@ const Home = () => {
                             <div>
                                 <h4 className="text-lg font-heading font-bold mb-6 text-white border-l-4 border-blue-500 pl-3">Quick Links</h4>
                                 <ul className="space-y-3 text-sm text-slate-400">
-                                    <li><Link to="/result" className="hover:text-amber-400 transition-colors flex items-center gap-2"><span>•</span> Examination Results</Link></li>
+                                    <li><a href="https://vbspuresult.org.in/Home/SemesterResult?SemesterType=Odd&Session=2025-26" target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition-colors flex items-center gap-2"><span>•</span> Examination Results</a></li>
                                     <li><Link to="/student/login" className="hover:text-amber-400 transition-colors flex items-center gap-2"><span>•</span> Student Login</Link></li>
                                     <li><Link to="/admin/login" className="hover:text-amber-400 transition-colors flex items-center gap-2"><span>•</span> Admin Login</Link></li>
                                 </ul>

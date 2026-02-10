@@ -12,6 +12,7 @@ const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const ResultPage = lazy(() => import('./pages/ResultPage'));
+const ExternalResult = lazy(() => import('./pages/ExternalResult'));
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const NoticesPage = lazy(() => import('./pages/NoticesPage'));
@@ -66,6 +67,7 @@ function App() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/admission-inquiry" element={<AdmissionInquiry />} />
               <Route path="/result" element={<ResultPage />} />
+              <Route path="/external-result" element={<ExternalResult />} />
               
               {/* STUDENT PORTAL */}
               <Route path="/student/login" element={<StudentLogin />} />

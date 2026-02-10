@@ -12,7 +12,7 @@ const Navbar = () => {
         courses: {
             label: 'Courses Offered',
             items: [
-                { name: 'B.Ed (3 Years)', path: '/courses/bed', description: 'Bachelor of Education' },
+                { name: 'BSC (3 Years)', path: '/courses/bed', description: 'Bachelor of Science' },
                 { name: 'B.T.C / D.El.Ed (2 Years)', path: '/courses/btc', description: 'Diploma in Elementary Education' },
                 { name: 'B.A (3 Years)', path: '/courses/ba', description: 'Bachelor of Arts' },
                 { name: 'LL.B (3 Years)', path: '/courses/LL.B', description: 'Bachelor of Law' },
@@ -39,7 +39,7 @@ const Navbar = () => {
 
     const regularLinks = [
         { name: 'Admissions', path: '/admission-inquiry', highlight: true },
-        { name: 'Results', path: '/student/login' },
+        { name: 'Results', path: '/external-result' },
     ];
 
     const isActive = (path) => location.pathname === path;
@@ -166,19 +166,35 @@ const Navbar = () => {
 
                         {/* Regular Links */}
                         {regularLinks.map((link) => (
-                            <Link
-                                key={link.name}
-                                to={link.path}
-                                className={`text-sm font-medium transition-all duration-300 py-2 px-3 rounded-lg ${
-                                    link.highlight 
-                                        ? 'text-accent-400 hover:bg-accent-500/20' 
-                                        : isActive(link.path) 
-                                            ? 'text-accent-400 bg-primary-800/50' 
+                            link.isExternal ? (
+                                <a
+                                    key={link.name}
+                                    href={link.path}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={`text-sm font-medium transition-all duration-300 py-2 px-3 rounded-lg ${
+                                        link.highlight 
+                                            ? 'text-accent-400 hover:bg-accent-500/20' 
                                             : 'text-primary-100 hover:text-accent-400 hover:bg-primary-800/30'
-                                }`}
-                            >
-                                {link.name}
-                            </Link>
+                                    }`}
+                                >
+                                    {link.name}
+                                </a>
+                            ) : (
+                                <Link
+                                    key={link.name}
+                                    to={link.path}
+                                    className={`text-sm font-medium transition-all duration-300 py-2 px-3 rounded-lg ${
+                                        link.highlight 
+                                            ? 'text-accent-400 hover:bg-accent-500/20' 
+                                            : isActive(link.path) 
+                                                ? 'text-accent-400 bg-primary-800/50' 
+                                                : 'text-primary-100 hover:text-accent-400 hover:bg-primary-800/30'
+                                    }`}
+                                >
+                                    {link.name}
+                                </Link>
+                            )
                         ))}
                     </div>
 
@@ -246,16 +262,31 @@ const Navbar = () => {
 
                         <div className="border-t border-primary-700 pt-4 space-y-2">
                             {regularLinks.map((link) => (
-                                <Link
-                                    key={link.name}
-                                    to={link.path}
-                                    onClick={() => setIsOpen(false)}
-                                    className={`block py-2 text-sm font-medium transition-colors ${
-                                        link.highlight ? 'text-accent-400' : 'text-primary-200 hover:text-accent-400'
-                                    }`}
-                                >
-                                    {link.name}
-                                </Link>
+                                link.isExternal ? (
+                                    <a
+                                        key={link.name}
+                                        href={link.path}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={() => setIsOpen(false)}
+                                        className={`block py-2 text-sm font-medium transition-colors ${
+                                            link.highlight ? 'text-accent-400' : 'text-primary-200 hover:text-accent-400'
+                                        }`}
+                                    >
+                                        {link.name}
+                                    </a>
+                                ) : (
+                                    <Link
+                                        key={link.name}
+                                        to={link.path}
+                                        onClick={() => setIsOpen(false)}
+                                        className={`block py-2 text-sm font-medium transition-colors ${
+                                            link.highlight ? 'text-accent-400' : 'text-primary-200 hover:text-accent-400'
+                                        }`}
+                                    >
+                                        {link.name}
+                                    </Link>
+                                )
                             ))}
                         </div>
 

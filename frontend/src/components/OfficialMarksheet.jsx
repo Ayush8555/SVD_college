@@ -26,7 +26,7 @@ const OfficialMarksheet = ({ student, result }) => {
                                 </div>
                             </div>
                             <h1 className="text-3xl font-bold uppercase tracking-wider mb-1">SVD Gurukul Mahavidyalaya</h1>
-                            <p className="text-sm font-semibold uppercase tracking-widest mb-1">Dumduma, Unchgaon, Jaunpur, Uttar Pradesh</p>
+                            <p className="text-sm font-semibold uppercase tracking-widest mb-1">Dumduma, Unchgaon, Jaunpur, Uttar Pradesh - 223102</p>
                             <p className="text-xs italic">(Affiliated to V.B.S. Purvanchal University)</p>
                             
                             <div className="mt-6 border-t border-b border-gray-300 py-2">

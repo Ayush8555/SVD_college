@@ -648,7 +648,7 @@ const AdmissionInquiry = () => {
               </div>
               <div>
                 <h4 className="font-bold text-primary-900">SVD Gurukul Mahavidyalaya</h4>
-                <p className="text-sm text-primary-700">Dumduma, Unchgaon, Jaunpur</p>
+                <p className="text-sm text-primary-700">Dumduma, Unchgaon, Jaunpur - 223102</p>
               </div>
             </div>
             <div className="text-center md:text-right">

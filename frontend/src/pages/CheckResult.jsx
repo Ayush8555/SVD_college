@@ -53,7 +53,7 @@ const CheckResult = () => {
              Student Result Portal
            </h1>
            <p className="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">
-             Government Engineering College, Pune
+             SVD Gurukul Mahavidyalaya
            </p>
         </div>
 
@@ -114,7 +114,7 @@ const CheckResult = () => {
             </Card>
             
             <p className="text-center text-xs text-gray-400 mt-6">
-                &copy; 2025 Exam Cell, GEC Pune. All Rights Reserved.
+                &copy; 2025 Exam Cell, SVD Gurukul Mahavidyalaya
             </p>
           </div>
         ) : (

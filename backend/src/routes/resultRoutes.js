@@ -29,4 +29,14 @@ router.get('/my/:id', protectStudent, getSingleMyResult);
  */
 router.post('/check', strictResultLimiter, checkResult);
 
+// Import external controller
+import { fetchExternalResult } from '../controllers/externalResultController.js';
+
+/**
+ * @route   POST /api/results/external
+ * @desc    Proxy to fetch results from external university portal
+ * @access  Public (Rate Limited)
+ */
+router.post('/external', strictResultLimiter, fetchExternalResult);
+
 export default router;
