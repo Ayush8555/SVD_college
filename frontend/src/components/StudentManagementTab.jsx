@@ -5,6 +5,7 @@ import Input from '../components/ui/Input';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import { useToast } from '../context/ToastContext';
+import BulkStudentUpload from './admin/BulkStudentUpload';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
@@ -13,6 +14,7 @@ const StudentManagementTab = () => {
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [showForm, setShowForm] = useState(false);
+    const [showBulkUpload, setShowBulkUpload] = useState(false);
     const { success, error } = useToast();
 
     const [formData, setFormData] = useState({
@@ -25,8 +27,8 @@ const StudentManagementTab = () => {
         motherName: '',
         category: 'General',
         gender: 'Male',
-        department: 'Arts',
-        program: 'BA',
+        department: 'B.Ed',
+        program: 'B.Ed',
         currentSemester: '1',
         phone: ''
     });
@@ -118,8 +120,8 @@ const StudentManagementTab = () => {
                 motherName: '',
                 category: 'General',
                 gender: 'Male',
-                department: 'Arts',
-                program: 'BA',
+                department: 'B.Ed',
+                program: 'B.Ed',
                 currentSemester: '1',
                 phone: ''
             });
@@ -131,26 +133,84 @@ const StudentManagementTab = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!confirm('Are you sure you want to delete this student and all their data?')) return;
+
+
+    const [departmentFilter, setDepartmentFilter] = useState('All');
+    const [semesterFilter, setSemesterFilter] = useState('All');
+    const [batchFilter, setBatchFilter] = useState('All');
+    const [selectedStudents, setSelectedStudents] = useState([]);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    // Filter Logic
+    const filteredStudents = students.filter(student => {
+        const matchesSearch = 
+            student.rollNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            student.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            `${student.firstName} ${student.lastName}`.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        const matchesDepartment = departmentFilter === 'All' || student.department === departmentFilter;
+        const matchesSemester = semesterFilter === 'All' || String(student.currentSemester) === semesterFilter;
+        const matchesBatch = batchFilter === 'All' || student.batch === batchFilter;
+
+        return matchesSearch && matchesDepartment && matchesSemester && matchesBatch;
+    });
+
+    // Selection Logic
+    const handleSelectAll = (e) => {
+        if (e.target.checked) {
+            setSelectedStudents(filteredStudents.map(s => s._id));
+        } else {
+            setSelectedStudents([]);
+        }
+    };
+
+    const handleSelectOne = (id) => {
+        if (selectedStudents.includes(id)) {
+            setSelectedStudents(selectedStudents.filter(sId => sId !== id));
+        } else {
+            setSelectedStudents([...selectedStudents, id]);
+        }
+    };
+
+    // Bulk Delete
+    const handleBulkDelete = async () => {
+        if (!window.confirm(`Are you sure you want to delete ${selectedStudents.length} students?`)) return;
         
         try {
+            setIsDeleting(true);
             const token = localStorage.getItem('token');
-            await axios.delete(`${API_URL}/admin/students/${id}`, {
-                headers: { Authorization: `Bearer ${token}` }
+            const headers = { Authorization: `Bearer ${token}` };
+            
+            // Execute deletions in parallel
+            await Promise.all(selectedStudents.map(id => 
+                axios.delete(`${API_URL}/admin/students/${id}`, { headers })
+            ));
+
+            success(`Successfully deleted ${selectedStudents.length} students`);
+            setSelectedStudents([]);
+            fetchStudents();
+        } catch (err) {
+            console.error(err);
+            error('Failed to delete some students');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+    
+    // Single Delete Wrapper
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this student?')) return;
+        try {
+            const token = localStorage.getItem('token');
+            await axios.delete(`${API_URL}/admin/students/${id}`, { 
+                headers: { Authorization: `Bearer ${token}` } 
             });
             success('Student deleted successfully');
             fetchStudents();
         } catch (err) {
-            error(err.response?.data?.message || 'Error deleting student');
+            error('Failed to delete student');
         }
     };
-
-    const filteredStudents = students.filter(student =>
-        student.rollNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        `${student.firstName} ${student.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
     return (
         <div className="space-y-6">
@@ -160,13 +220,36 @@ const StudentManagementTab = () => {
                     <h1 className="text-2xl font-bold text-gray-900">Student Management</h1>
                     <p className="text-sm text-gray-600 mt-1">Register and manage student accounts</p>
                 </div>
-                <Button 
-                    onClick={() => setShowForm(!showForm)}
-                    className="px-4 py-2"
-                >
-                    {showForm ? 'Cancel' : '+ Add Student'}
-                </Button>
+                <div className="flex gap-3">
+                    <Button 
+                        variant="secondary"
+                        onClick={() => setShowBulkUpload(true)}
+                        className="px-4 py-2"
+                    >
+                        Bulk Import
+                    </Button>
+                    <Button 
+                        onClick={() => setShowForm(!showForm)}
+                        className="px-4 py-2"
+                    >
+                        {showForm ? 'Cancel' : '+ Add Student'}
+                    </Button>
+                </div>
             </div>
+
+            {showBulkUpload && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+                    <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                        <BulkStudentUpload 
+                            onClose={() => setShowBulkUpload(false)} 
+                            onSuccess={() => {
+                                fetchStudents();
+                                setShowBulkUpload(false);
+                            }} 
+                        />
+                    </div>
+                </div>
+            )}
 
             {showForm && (
                 <Card>
@@ -277,10 +360,10 @@ const StudentManagementTab = () => {
                                     onChange={handleInputChange}
                                     className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-brand focus:border-brand sm:text-sm py-3 px-4"
                                 >
-                                    <option value="Arts">Arts</option>
-                                    <option value="Science">Science</option>
-                                    <option value="Commerce">Commerce</option>
-                                    <option value="Education">Education</option>
+                                    <option value="B.Ed">B.Ed</option>
+                                    <option value="B.A">B.A</option>
+                                    <option value="B.T.C">B.T.C</option>
+                                    <option value="LL.B">LL.B</option>
                                 </select>
                             </div>
                             <div>
@@ -291,10 +374,10 @@ const StudentManagementTab = () => {
                                     onChange={handleInputChange}
                                     className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-brand focus:border-brand sm:text-sm py-3 px-4"
                                 >
-                                    <option value="BA">B.A</option>
-                                    <option value="B.Sc">B.Sc</option>
-                                    <option value="B.Com">B.Com</option>
                                     <option value="B.Ed">B.Ed</option>
+                                    <option value="B.A">B.A</option>
+                                    <option value="B.T.C">B.T.C</option>
+                                    <option value="LL.B">LL.B</option>
                                 </select>
                             </div>
                             <div>
@@ -335,52 +418,155 @@ const StudentManagementTab = () => {
             )}
 
             <Card>
-                <div className="mb-4">
-                    <Input
-                        placeholder="Search students..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="max-w-sm"
-                    />
+                <div className="mb-6 flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
+                    <div className="flex flex-col md:flex-row gap-3 w-full lg:w-auto flex-1">
+                        <Input
+                            placeholder="Search students..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="max-w-xs w-full"
+                        />
+                        <select
+                            value={departmentFilter}
+                            onChange={(e) => setDepartmentFilter(e.target.value)}
+                            className="rounded-lg border-gray-300 shadow-sm focus:ring-brand focus:border-brand text-sm py-2"
+                        >
+                            <option value="All">All Departments</option>
+                            <option value="B.Ed">B.Ed</option>
+                            <option value="B.A">B.A</option>
+                            <option value="B.T.C">B.T.C</option>
+                            <option value="LL.B">LL.B</option>
+                        </select>
+                        <select
+                            value={semesterFilter}
+                            onChange={(e) => setSemesterFilter(e.target.value)}
+                            className="rounded-lg border-gray-300 shadow-sm focus:ring-brand focus:border-brand text-sm py-2"
+                        >
+                            <option value="All">All Semesters</option>
+                            {[1, 2, 3, 4, 5, 6].map(sem => <option key={sem} value={String(sem)}>Sem {sem}</option>)}
+                        </select>
+                    </div>
+
+                    {selectedStudents.length > 0 && (
+                        <div className="flex items-center gap-3">
+                            <span className="text-sm font-medium text-gray-700">{selectedStudents.length} selected</span>
+                            <Button 
+                                variant="danger" 
+                                onClick={handleBulkDelete}
+                                isLoading={isDeleting}
+                                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 text-sm"
+                            >
+                                Delete Selected
+                            </Button>
+                        </div>
+                    )}
                 </div>
 
-                <div className="overflow-x-auto">
+                {/* Mobile View (Cards) */}
+                <div className="md:hidden grid grid-cols-1 gap-4">
+                    {loading ? (
+                        <div className="text-center py-8 text-gray-500">Loading students...</div>
+                    ) : filteredStudents.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">No students found</div>
+                    ) : (
+                        filteredStudents.map(student => (
+                            <div key={student._id} className={`bg-white p-4 rounded-lg border border-gray-200 shadow-sm ${selectedStudents.includes(student._id) ? 'ring-2 ring-brand bg-blue-50' : ''}`}>
+                                <div className="flex justify-between items-start mb-2">
+                                    <div className="flex items-center gap-3">
+                                        <input 
+                                            type="checkbox" 
+                                            className="rounded border-gray-300 text-brand focus:ring-brand h-5 w-5"
+                                            checked={selectedStudents.includes(student._id)}
+                                            onChange={() => handleSelectOne(student._id)}
+                                        />
+                                        <div>
+                                            <h3 className="font-bold text-gray-900">{student.firstName} {student.lastName}</h3>
+                                            <p className="text-xs text-gray-500 font-mono">{student.rollNumber}</p>
+                                        </div>
+                                    </div>
+                                    <Badge variant="info">{student.department}</Badge>
+                                </div>
+                                
+                                <div className="space-y-1 text-sm text-gray-600 mb-3 pl-8">
+                                    <p><strong>Program:</strong> {student.program} (Sem {student.currentSemester})</p>
+                                    <p><strong>Email:</strong> {student.email || '-'}</p>
+                                    <p><strong>Phone:</strong> {student.phone || '-'}</p>
+                                </div>
+
+                                <div className="flex justify-end gap-3 pt-2 border-t border-gray-100 pl-8">
+                                    <button
+                                        onClick={() => handleEdit(student)}
+                                        className="text-blue-600 font-medium text-sm"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(student._id)}
+                                        className="text-red-600 font-medium text-sm"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                {/* Desktop View (Table) */}
+                <div className="hidden md:block overflow-x-auto border rounded-lg border-gray-200 relative">
                     <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                        <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Roll Number</th>
-                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Name</th>
-                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Email</th>
-                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Department</th>
-                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Program</th>
-                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Semester</th>
-                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+                                <th className="px-4 py-3 w-10">
+                                    <input 
+                                        type="checkbox" 
+                                        className="rounded border-gray-300 text-brand focus:ring-brand"
+                                        checked={filteredStudents.length > 0 && selectedStudents.length === filteredStudents.length}
+                                        onChange={handleSelectAll}
+                                        disabled={filteredStudents.length === 0}
+                                    />
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">Roll Number</th>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">Name</th>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">Email</th>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">Department</th>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">Program</th>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">Semester</th>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">Action</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                             {loading ? (
                                 <tr>
-                                    <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                                    <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
                                         Loading students...
                                     </td>
                                 </tr>
                             ) : filteredStudents.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                                    <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
                                         No students found
                                     </td>
                                 </tr>
                             ) : (
                                 filteredStudents.map(student => (
-                                    <tr key={student._id} className="hover:bg-gray-50">
+                                    <tr key={student._id} className={`hover:bg-gray-50 ${selectedStudents.includes(student._id) ? 'bg-blue-50' : ''}`}>
+                                        <td className="px-4 py-4 w-10">
+                                            <input 
+                                                type="checkbox" 
+                                                className="rounded border-gray-300 text-brand focus:ring-brand"
+                                                checked={selectedStudents.includes(student._id)}
+                                                onChange={() => handleSelectOne(student._id)}
+                                            />
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className="font-mono text-sm font-bold text-gray-900">{student.rollNumber}</span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="text-sm text-gray-900">{student.firstName} {student.lastName}</span>
+                                            <div className="text-sm text-gray-900">{student.firstName} {student.lastName}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="text-sm text-gray-600">{student.email}</span>
+                                            <span className="text-sm text-gray-600">{student.email || '-'}</span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <Badge variant="info">{student.department}</Badge>
@@ -392,20 +578,18 @@ const StudentManagementTab = () => {
                                             Sem {student.currentSemester}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            <div className="flex gap-3 justify-end">
-                                                <button
-                                                    onClick={() => handleEdit(student)}
-                                                    className="text-blue-600 hover:text-blue-900 font-medium"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(student._id)}
-                                                    className="text-red-600 hover:text-red-900 font-medium"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </div>
+                                            <button
+                                                onClick={() => handleEdit(student)}
+                                                className="text-blue-600 hover:text-blue-900 font-medium hover:underline mr-3"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(student._id)}
+                                                className="text-red-600 hover:text-red-900 font-medium hover:underline"
+                                            >
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 ))
@@ -414,8 +598,11 @@ const StudentManagementTab = () => {
                     </table>
                 </div>
 
-                <div className="mt-4 text-sm text-gray-600">
-                    Showing {filteredStudents.length} of {students.length} students
+                <div className="mt-4 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600 gap-2">
+                    <div>
+                        Showing <span className="font-semibold">{filteredStudents.length}</span> results 
+                        (Total: <span className="font-semibold">{students.length}</span>)
+                    </div>
                 </div>
             </Card>
         </div>

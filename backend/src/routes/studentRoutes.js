@@ -7,6 +7,7 @@ import {
   updateStudent,
   deleteStudent,
   getStudentStats,
+  bulkUploadStudents,
 } from '../controllers/studentController.js';
 import { protect, authorizeDesignation } from '../middleware/authMiddleware.js';
 
@@ -23,6 +24,7 @@ router.use(protect); // protect checks for admin role by default in authMiddlewa
 router.get('/', getAllStudents);
 router.get('/stats/overview', getStudentStats);
 router.get('/:id', getStudentById);
+router.post('/bulk', bulkUploadStudents);
 router.post('/', createStudent);
 router.put('/:id', updateStudent);
 router.delete('/:id', deleteStudent);

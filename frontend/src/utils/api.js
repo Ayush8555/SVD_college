@@ -73,4 +73,15 @@ export const resultAPI = {
   getActivity: () => api.get('/admin/results/activity'),
 };
 
+// Fee Management API
+export const feeAPI = {
+  createStructure: (data) => api.post('/fees/structure', data),
+  deleteStructure: (id, cascade) => api.delete(`/fees/structure/${id}`, { params: { cascade } }),
+  getStructures: () => api.get('/fees/structure'),
+  assignFees: (data) => api.post('/fees/assign', data),
+  getMyDues: () => api.get('/fees/my-dues'),
+  getStudentDuesAdmin: (id) => api.get(`/fees/student/${id}`),
+  recordPayment: (data) => api.post('/fees/pay', data),
+};
+
 export default api;

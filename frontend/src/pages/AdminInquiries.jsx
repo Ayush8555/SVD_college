@@ -323,11 +323,61 @@ const AdminInquiries = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="bg-white shadow-md rounded-xl overflow-hidden border border-gray-100">
-        <div className="overflow-x-auto">
+        
+        {/* Mobile View (Cards) */}
+        <div className="md:hidden grid grid-cols-1 divide-y divide-gray-100">
+          {loading ? (
+             <div className="p-8 text-center text-gray-500">Loading inquiries...</div>
+          ) : filteredInquiries.length === 0 ? (
+             <div className="p-8 text-center text-gray-500">No inquiries found.</div>
+          ) : (
+            filteredInquiries.map(inquiry => (
+              <div key={inquiry._id} className="p-4 bg-white hover:bg-gray-50 transition-colors">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h3 className="font-bold text-gray-900">{inquiry.name}</h3>
+                    <div className="text-xs text-gray-500 mt-0.5">
+                      {new Date(inquiry.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                    {inquiry.courseOfInterest}
+                  </span>
+                </div>
+
+                <div className="text-sm text-gray-600 mb-3 line-clamp-3">
+                  {inquiry.message || "No message provided."}
+                </div>
+
+                <div className="flex flex-wrap gap-y-2 justify-between items-center text-xs text-gray-500 pt-2 border-t border-gray-100">
+                   <div className="space-x-3">
+                      <span>{inquiry.email}</span>
+                      <span>{inquiry.phone}</span>
+                   </div>
+                   
+                   <div className="relative">
+                      <select
+                        value={inquiry.status}
+                        onChange={(e) => handleStatusChange(inquiry._id, e.target.value)}
+                        className={`appearance-none pl-2 pr-6 py-1 rounded-md text-xs font-medium border-0 ring-1 ring-inset ${statusConfig[inquiry.status]?.bg} ${statusConfig[inquiry.status]?.text} focus:ring-2 focus:ring-brand cursor-pointer`}
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="Contacted">Contacted</option>
+                        <option value="Admitted">Admitted</option>
+                        <option value="Rejected">Rejected</option>
+                      </select>
+                   </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop View (Table) */}
+        <div className="hidden md:block overflow-x-auto relative">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name/Contact</th>
@@ -375,8 +425,8 @@ const AdminInquiries = () => {
                           {inquiry.courseOfInterest}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500 max-w-xs">
-                        <div className="truncate" title={inquiry.message}>
+                      <td className="px-6 py-4 text-sm text-gray-500 min-w-[300px]">
+                        <div title={inquiry.message}>
                           {inquiry.message || <span className="text-gray-400 italic">No message</span>}
                         </div>
                       </td>

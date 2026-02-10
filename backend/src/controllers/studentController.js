@@ -1,4 +1,5 @@
 import Student from '../models/Student.js';
+import bcrypt from 'bcryptjs';
 
 /**
  * @desc    Get all students (with filters)
@@ -328,5 +329,141 @@ export const promoteStudents = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Promotion failed', error: error.message });
+    }
+};
+/**
+ * @desc    Bulk upload students
+ * @route   POST /api/students/bulk
+ * @access  Private (Admin)
+ */
+export const bulkUploadStudents = async (req, res) => {
+    try {
+        const { students, defaultDepartment, defaultSemester, defaultAdmissionYear } = req.body;
+
+        if (!students || !Array.isArray(students) || students.length === 0) {
+            return res.status(400).json({ success: false, message: 'No student data provided' });
+        }
+
+        const validStudents = [];
+        const errors = [];
+        const processedRollNumbers = new Set();
+
+        for (const studentData of students) {
+            // Basic Validation
+            if (!studentData.firstName || !studentData.lastName || !studentData.rollNumber) {
+                errors.push({ 
+                    rollNumber: studentData.rollNumber || 'Unknown', 
+                    message: 'Missing Name or Roll Number' 
+                });
+                continue;
+            }
+            
+            // Check for duplicates within the file itself
+            const upperRoll = studentData.rollNumber.toUpperCase();
+            if (processedRollNumbers.has(upperRoll)) {
+                 errors.push({ rollNumber: upperRoll, message: 'Duplicate Roll Number in file' });
+                 continue;
+            }
+            processedRollNumbers.add(upperRoll);
+
+            // Defaults & Formatting
+            // Generate password from DOB if available, else default to '123456'
+            let password = 'password123';
+            let dobDate;
+             
+            if (studentData.dateOfBirth) {
+                // Try to parse DOB
+                dobDate = new Date(studentData.dateOfBirth);
+                if (!isNaN(dobDate.getTime())) {
+                     const y = dobDate.getFullYear();
+                     const m = String(dobDate.getMonth() + 1).padStart(2, '0');
+                     const d = String(dobDate.getDate()).padStart(2, '0');
+                     password = `${y}${m}${d}`;
+                } else {
+                    // Invalid DOB provided, fallback to current date for validation but warn?
+                    // Or just use default password
+                    dobDate = new Date(); // Default to today if invalid? Better to be strict? 
+                    // Let's set default DOB to 2000-01-01 if missing/invalid to allow upload
+                    dobDate = new Date('2000-01-01');
+                }
+            } else {
+                dobDate = new Date('2000-01-01'); // Default DOB
+            }
+
+            validStudents.push({
+                rollNumber: upperRoll,
+                enrollmentNumber: studentData.enrollmentNumber,
+                firstName: studentData.firstName,
+                middleName: studentData.middleName,
+                lastName: studentData.lastName,
+                fatherName: studentData.fatherName,
+                motherName: studentData.motherName,
+                email: studentData.email,
+                phone: studentData.phone,
+                gender: studentData.gender || 'Male',
+                category: studentData.category || 'General',
+                
+                // Academic Defaults
+                department: studentData.department || defaultDepartment,
+                currentSemester: studentData.currentSemester || defaultSemester || 1,
+                admissionYear: studentData.admissionYear || defaultAdmissionYear || new Date().getFullYear(),
+                batch: studentData.batch || `${new Date().getFullYear()}-${new Date().getFullYear() + 3}`,
+                
+                dateOfBirth: dobDate,
+                password: await bcrypt.hash(password, 10), // Hash manually since insertMany doesn't trigger pre-save hooks!
+                isVerified: true
+            });
+        }
+
+        if (validStudents.length === 0) {
+             return res.status(400).json({ success: false, message: 'No valid students found to upload', errors });
+        }
+
+        // Bulk Insert
+        // Using create loop instead of insertMany for better error handling and reliability
+        let insertedCount = 0;
+        let skippedCount = 0;
+        
+        for (const student of validStudents) {
+            try {
+                // Ensure unique roll number check happens at DB level
+                await Student.create(student);
+                insertedCount++;
+            } catch (error) {
+                let msg = 'Database Error';
+                let isDuplicate = false;
+                
+                if (error.code === 11000) {
+                    // Identify which field is duplicate
+                    const field = Object.keys(error.keyPattern)[0];
+                    const value = error.keyValue[field];
+                    msg = `${field.charAt(0).toUpperCase() + field.slice(1)} already exists: ${value}`;
+                    isDuplicate = true;
+                    skippedCount++;
+                }
+                else if (error.errors) msg = Object.values(error.errors).map(e => e.message).join(', ');
+                
+                errors.push({ 
+                    rollNumber: student.rollNumber, 
+                    message: msg,
+                    isDuplicate
+                });
+            }
+        }
+
+        res.status(200).json({
+            success: true,
+            message: `Processed ${students.length} entries. Added: ${insertedCount}. Skipped: ${skippedCount}. Failed: ${students.length - insertedCount - skippedCount}`,
+            data: {
+                added: insertedCount,
+                skipped: skippedCount,
+                failed: students.length - insertedCount - skippedCount,
+                errors: errors.slice(0, 50) 
+            }
+        });
+
+    } catch (error) {
+        console.error('Bulk Upload Error:', error);
+        res.status(500).json({ success: false, message: 'Bulk Upload Failed', error: error.message });
     }
 };

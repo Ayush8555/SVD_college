@@ -14,6 +14,8 @@ import ReportsTab from '../components/ReportsTab';
 import AdminInquiries from './AdminInquiries';
 import NoticesTab from '../components/admin/NoticesTab';
 import SettingsTab from '../components/admin/SettingsTab';
+import BulkResultUpload from '../components/admin/BulkResultUpload';
+import FeeManagement from '../components/admin/FeeManagement';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
@@ -41,6 +43,7 @@ const AdminDashboard = () => {
   const menuItems = [
       { id: 'overview', label: 'Overview', iconType: 'chart' },
       { id: 'students', label: 'Student Management', iconType: 'users' },
+      { id: 'financials', label: 'Fee Management', iconType: 'fee' },
       { id: 'upload', label: 'Upload Results', iconType: 'upload' },
       { id: 'results', label: 'Manage Results', iconType: 'document' },
       { id: 'publishing', label: 'Result Publishing', iconType: 'publish' },
@@ -57,6 +60,7 @@ const AdminDashboard = () => {
     const icons = {
       chart: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>,
       users: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>,
+      fee: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
       upload: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>,
       document: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
       publish: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" /></svg>,
@@ -71,15 +75,15 @@ const AdminDashboard = () => {
     };
     return icons[iconType] || null;
   };  return (
-    <div className="min-h-screen bg-gray-50 flex font-sans">
+    <div className="min-h-screen bg-gray-50 font-sans">
       {/* Sidebar */}
       <aside
-        className={`bg-white border-r border-gray-200 w-64 flex flex-col fixed inset-y-0 left-0 z-30 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
+        className={`bg-white border-r border-gray-200 w-64 flex flex-col fixed inset-y-0 left-0 z-30 transform transition-transform duration-300 ease-in-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        } md:translate-x-0`}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center px-6 border-b border-gray-200">
+        <div className="h-16 flex items-center px-6 border-b border-gray-200 flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-primary-600 text-white rounded-lg flex items-center justify-center font-bold text-sm">
               SVD
@@ -92,7 +96,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto custom-scrollbar">
             {menuItems.map(item => (
                 item.isLink ? (
                     <button
@@ -124,7 +128,7 @@ const AdminDashboard = () => {
         </nav>
 
         {/* User Profile */}
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-gray-200 flex-shrink-0">
             <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-sm font-bold">
                     {user?.firstName?.[0] || 'A'}
@@ -147,9 +151,9 @@ const AdminDashboard = () => {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-screen md:ml-64 transition-all duration-300">
         {/* Mobile Header */}
-        <header className="md:hidden bg-white h-16 shadow-sm flex items-center justify-between px-4 z-20 border-b border-gray-200">
+        <header className="md:hidden bg-white h-16 shadow-sm flex items-center justify-between px-4 z-20 border-b border-gray-200 sticky top-0">
             <div className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-primary-600 text-white rounded-lg flex items-center justify-center font-bold text-xs">SVD</div>
                 <span className="font-bold text-gray-900">Admin Panel</span>
@@ -162,10 +166,11 @@ const AdminDashboard = () => {
         </header>
 
         {/* Content Area */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
+        <main className="flex-1 bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto">
                 {activeTab === 'overview' && <OverviewTab setActiveTab={setActiveTab} />}
                 {activeTab === 'students' && <StudentManagementTab />}
+                {activeTab === 'financials' && <FeeManagement />}
                 {activeTab === 'upload' && <UploadResultsTab />}
                 {activeTab === 'results' && <ManageResultsTab />}
                 {activeTab === 'publishing' && <ResultPublishingTab />}
@@ -302,6 +307,7 @@ const StatCard = ({ title, value, iconType, color }) => {
 
 const UploadResultsTab = () => {
     const [mode, setMode] = useState('bulk'); // 'bulk' or 'manual'
+    const [showBulkModal, setShowBulkModal] = useState(false);
 
     return (
         <div className="max-w-4xl mx-auto animate-fade-in-up">
@@ -312,7 +318,7 @@ const UploadResultsTab = () => {
                         onClick={() => setMode('bulk')}
                         className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${mode === 'bulk' ? 'bg-primary-100 text-primary-700' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
-                        Bulk Upload (CSV)
+                        Bulk Upload
                     </button>
                     <button 
                         onClick={() => setMode('manual')}
@@ -323,115 +329,28 @@ const UploadResultsTab = () => {
                 </div>
             </div>
             
-            {mode === 'bulk' ? <BulkUploadPanel /> : <ManualEntryPanel />}
-        </div>
-    );
-};
-
-const BulkUploadPanel = () => {
-    const [file, setFile] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [status, setStatus] = useState(null);
-    const [errors, setErrors] = useState([]);
-    const toast = useToast();
-
-    const handleFileChange = (e) => {
-        setFile(e.target.files[0]);
-        setStatus(null);
-        setErrors([]);
-    };
-
-    const handleUpload = async (e) => {
-        e.preventDefault();
-        if (!file) return;
-
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        setLoading(true);
-        setStatus(null);
-        
-        try {
-            const token = localStorage.getItem('token');
-            const res = await axios.post(`${API_URL}/admin/results/upload`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` }
-            });
-            setStatus({ type: 'success', msg: res.data.message });
-            toast.success("Bulk upload processed successfully");
-            if(res.data.errors?.length) setErrors(res.data.errors);
-        } catch (err) {
-            const msg = err.response?.data?.message || 'Upload failed';
-            setStatus({ type: 'error', msg });
-            toast.error(msg);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div className="animate-fade-in">
-            <Card className="mb-6 border-t-4 border-t-primary-800" title="Bulk Result Upload">
-                <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-12 bg-gray-50 hover:bg-white hover:border-primary-400 transition-all cursor-pointer group">
-                    <div className="w-16 h-16 bg-white text-primary-600 rounded-full flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform border border-gray-100">
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+            {mode === 'bulk' ? (
+                <Card className="border-t-4 border-t-primary-800 p-10 text-center">
+                    <div className="w-20 h-20 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
                     </div>
-                    <label htmlFor="file-upload" className="cursor-pointer text-center">
-                        <span className="mt-2 block text-lg font-bold text-gray-900">
-                            Drop your CSV file here
-                        </span>
-                        <span className="text-sm text-gray-500 mt-1 block">
-                            or <span className="text-primary-600 font-semibold hover:underline">browse from computer</span>
-                        </span>
-                        <input id="file-upload" name="file-upload" type="file" accept=".csv, .xlsx" className="sr-only" onChange={handleFileChange} />
-                    </label>
-                    <p className="mt-4 text-xs text-gray-400 uppercase tracking-wide font-medium">Supported Formats: csv, xlsx</p>
-                    {file && (
-                        <div className="mt-6 flex items-center gap-3 bg-primary-50 px-4 py-2 rounded-lg border border-primary-100 text-sm text-primary-800 font-medium animate-fade-in">
-                            <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                            {file.name}
-                            <button onClick={() => setFile(null)} className="ml-2 text-primary-400 hover:text-primary-700">✕</button>
-                        </div>
-                    )}
-                </div>
-
-                <div className="mt-6 flex justify-end">
-                    <Button 
-                        onClick={handleUpload} 
-                        disabled={!file} 
-                        isLoading={loading}
-                        className="px-8 shadow-md"
-                    >
-                        Process Upload
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">Bulk Result Upload Tool</h2>
+                    <p className="text-gray-500 mb-8 max-w-md mx-auto">
+                        Upload examination results using Excel or CSV files. Auto-detects subjects, maps columns, and validates data before insertion.
+                    </p>
+                    <Button onClick={() => setShowBulkModal(true)} size="lg" className="px-8 shadow-xl">
+                        Launch Upload Tool
                     </Button>
-                </div>
-            </Card>
+                </Card>
+            ) : (
+                <ManualEntryPanel />
+            )}
 
-            {(status || errors.length > 0) && (
-                <div className={`rounded-xl p-6 ${status?.type === 'success' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-                    {status && (
-                        <div className="flex items-start">
-                             {status.type === 'success' ? (
-                                 <svg className="w-6 h-6 mr-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                             ) : (
-                                 <svg className="w-6 h-6 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                             )}
-                             <div>
-                                 <h3 className={`font-bold ${status.type === 'success' ? 'text-green-800' : 'text-red-800'}`}>
-                                     {status.type === 'success' ? 'Upload Successful' : 'Processing Failed'}
-                                 </h3>
-                                 <p className={`text-sm mt-1 ${status.type === 'success' ? 'text-green-700' : 'text-red-700'}`}>{status.msg}</p>
-                             </div>
-                        </div>
-                    )}
-                    
-                    {errors.length > 0 && (
-                        <div className="mt-4 pt-4 border-t border-red-200">
-                             <p className="font-semibold text-red-800 text-sm mb-2">Rows with errors:</p>
-                             <ul className="space-y-1 text-sm text-red-700 max-h-40 overflow-y-auto">
-                                 {errors.map((e, i) => <li key={i}>Row {e.row}: {e.error}</li>)}
-                             </ul>
-                        </div>
-                    )}
+            {showBulkModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-md p-4 animate-fade-in">
+                    <div className="w-full max-w-4xl transform scale-100 transition-all">
+                        <BulkResultUpload onClose={() => setShowBulkModal(false)} />
+                    </div>
                 </div>
             )}
         </div>

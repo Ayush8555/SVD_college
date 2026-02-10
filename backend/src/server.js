@@ -89,6 +89,10 @@ app.use('/api/queries', queryRoutes); // /api/queries, /api/queries/my, /api/que
 app.use('/api/inquiry', inquiryRoutes);
 app.use('/api/notices', noticeRoutes);
 
+// Fee Management Routes (Integrated Fee Portal)
+import feeRoutes from './routes/feeRoutes.js';
+app.use('/api/fees', feeRoutes);
+
 // Document Verification Routes (Secure Document Upload System)
 import documentRoutes from './routes/documentRoutes.js';
 import adminDocumentRoutes from './routes/adminDocumentRoutes.js';

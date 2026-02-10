@@ -22,6 +22,7 @@ const StudentExamination = lazy(() => import('./pages/StudentExamination'));
 const StudentResultView = lazy(() => import('./pages/StudentResultView'));
 const StudentProfile = lazy(() => import('./pages/StudentProfile'));
 const StudentHelpDesk = lazy(() => import('./pages/StudentHelpDesk'));
+const StudentFeePortal = lazy(() => import('./pages/student/StudentFeePortal'));
 const AdminHelpDesk = lazy(() => import('./pages/AdminHelpDesk'));
 const AdmissionInquiry = lazy(() => import('./pages/AdmissionInquiry'));
 const AdminInquiries = lazy(() => import('./pages/AdminInquiries'));
@@ -81,6 +82,7 @@ function App() {
                   <Route path="examination" element={<StudentExamination />} />
                   <Route path="profile" element={<StudentProfile />} />
                   <Route path="queries" element={<StudentHelpDesk />} />
+                  <Route path="fees" element={<StudentFeePortal />} />
 
                   <Route path="documents" element={<DocumentUpload />} />
                   {/* Default redirect */}

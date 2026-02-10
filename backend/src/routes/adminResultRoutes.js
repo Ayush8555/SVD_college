@@ -1,7 +1,7 @@
 import express from 'express';
 import { protect, authorizeDesignation } from '../middleware/authMiddleware.js';
 import upload from '../middleware/uploadMiddleware.js';
-import { uploadResults } from '../controllers/resultUploadController.js';
+import { uploadResults, uploadResultsJSON } from '../controllers/resultUploadController.js';
 // ...existing code...
 import { 
     getAllResults, 
@@ -46,6 +46,13 @@ router.post(
     authorizeDesignation('Exam Controller', 'System Admin', 'Principal'), 
     upload.single('file'), 
     uploadResults
+);
+
+router.post(
+    '/upload/json',
+    protect,
+    authorizeDesignation('Exam Controller', 'System Admin', 'Principal'),
+    uploadResultsJSON
 );
 
 router.post(

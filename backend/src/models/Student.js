@@ -11,7 +11,15 @@ const studentSchema = new mongoose.Schema(
       uppercase: true,
       index: true, // Indexed for fast search
       // Regex for generic Indian college roll no (e.g., GEC2023CS001)
-      match: [/^[A-Z0-9]+$/, 'Roll number must be alphanumeric'],
+      match: [/^[A-Z0-9\-_]+$/, 'Roll number must be alphanumeric (hyphens/underscores allowed)'],
+    },
+    enrollmentNumber: {
+      type: String,
+      unique: true,
+      sparse: true, // Allows null/undefined to be unique (optional field)
+      trim: true,
+      uppercase: true,
+      index: true,
     },
     firstName: {
       type: String,
