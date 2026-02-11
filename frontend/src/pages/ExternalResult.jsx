@@ -67,13 +67,41 @@ const ExternalResult = () => {
         setFormData({ rollNo: '', dob: '' });
     };
 
+    const handlePrint = () => {
+        if (!resultData || resultData.type !== 'detail') return;
+
+        const fullHtml = '<!DOCTYPE html>' +
+'<html><head><meta charset="UTF-8">' +
+'<title>VBSPU Result</title>' +
+'<style>' +
+'@page { size: A4; margin: 10mm 15mm; }' +
+'* { margin: 0; padding: 0; box-sizing: border-box; }' +
+'body { font-family: "Times New Roman", Georgia, serif; color: #000; background: #fff; font-size: 14px; padding: 15mm 10mm; }' +
+'table { border-collapse: collapse; width: 100%; }' +
+'td, th { padding: 5px 8px; }' +
+'img { max-width: 80px; height: auto; }' +
+'</style></head><body>' +
+resultData.htmlContent +
+'<script>window.onload=function(){setTimeout(function(){window.print();},800);};<\/script>' +
+'</body></html>';
+
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            alert('Please allow pop-ups to print the marksheet.');
+            return;
+        }
+        printWindow.document.open();
+        printWindow.document.write(fullHtml);
+        printWindow.document.close();
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
             <Navbar />
             
             <main className="flex-grow py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-5xl mx-auto">
-                    <div className="text-center mb-10">
+                    <div className="text-center mb-10 no-print">
                         <h1 className="text-3xl font-bold text-gray-900">University Result Portal</h1>
                         <p className="mt-2 text-gray-600">Check your semester results (VBSPU)</p>
                     </div>
@@ -137,14 +165,27 @@ const ExternalResult = () => {
                         </div>
                     ) : (
                         <div className="bg-white p-6 rounded-2xl shadow-xl overflow-hidden animation-fade-in-up">
-                            <div className="flex justify-between items-center mb-6">
+                            <div className="flex justify-between items-center mb-6 no-print">
                                 <button 
                                     onClick={viewingDetail ? () => { setViewingDetail(false); handleSubmit({ preventDefault: () => {} }); } : resetSearch}
                                     className="text-sm text-primary-600 hover:text-primary-800 font-medium flex items-center gap-1"
                                 >
                                     ← {viewingDetail ? 'Back to List' : 'Check Another Result'}
                                 </button>
-                                {loading && <span className="text-gray-500 text-sm">Loading...</span>}
+                                <div className="flex items-center gap-3">
+                                    {loading && <span className="text-gray-500 text-sm">Loading...</span>}
+                                    {viewingDetail && resultData.type === 'detail' && (
+                                        <button
+                                            onClick={handlePrint}
+                                            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium text-sm shadow-md transition-all"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                            </svg>
+                                            Print Result
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                             
                             {/* Render sanitized HTML for Detail View */}

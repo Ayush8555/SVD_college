@@ -63,12 +63,22 @@ export const fetchExternalResult = async (req, res) => {
                 }
             });
 
-            // Return the HTML of the marksheet
+            // Rewrite relative URLs in the HTML to absolute URLs so images/CSS load correctly
+            const baseUrl = 'https://vbspuresult.org.in';
+            let html = detailResponse.data;
+            
+            // Fix src attributes (images, scripts)
+            html = html.replace(/src\s*=\s*["']\/([^"']*?)["']/gi, `src="${baseUrl}/$1"`);
+            // Fix href attributes (stylesheets, links)
+            html = html.replace(/href\s*=\s*["']\/([^"']*?)["']/gi, `href="${baseUrl}/$1"`);
+            // Fix url() in inline styles
+            html = html.replace(/url\(\s*['"]?\/([^'")]*?)['"]?\s*\)/gi, `url(${baseUrl}/$1)`);
+
             return res.status(200).json({
                 success: true,
                 data: {
                     type: 'detail',
-                    htmlContent: detailResponse.data
+                    htmlContent: html
                 }
             });
         }

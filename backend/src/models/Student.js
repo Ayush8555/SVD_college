@@ -11,7 +11,7 @@ const studentSchema = new mongoose.Schema(
       uppercase: true,
       index: true, // Indexed for fast search
       // Regex for generic Indian college roll no (e.g., GEC2023CS001)
-      match: [/^[A-Z0-9\-_]+$/, 'Roll number must be alphanumeric (hyphens/underscores allowed)'],
+      match: [/^[A-Z0-9\-_\/]+$/, 'Roll number must be alphanumeric (hyphens/underscores/slashes allowed)'],
     },
     enrollmentNumber: {
       type: String,
@@ -95,7 +95,11 @@ const studentSchema = new mongoose.Schema(
         'Commerce',
         'Education',
         'Law',
-        'Computer Application'
+        'Computer Application',
+        'B.Ed',
+        'B.T.C',
+        'B.A',
+        'LL.B'
       ],
     },
     program: {

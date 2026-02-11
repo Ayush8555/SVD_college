@@ -138,7 +138,7 @@ const Navbar = () => {
     );
 
     return (
-        <nav className="bg-primary-900 text-white shadow-lg sticky top-0" style={{ zIndex: 9998 }}>
+        <nav className="bg-primary-900 text-white shadow-lg sticky top-0 no-print" style={{ zIndex: 9998 }}>
             {/* Animated accent border */}
             <div className="h-1 bg-gradient-to-r from-primary-600 via-accent-500 to-primary-600 animate-gradientShift"></div>
             

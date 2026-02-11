@@ -127,12 +127,12 @@ export const registerStudent = async (req, res) => {
             });
         }
 
-        // Generate password from DOB (YYYYMMDD format)
+        // Generate password from DOB (YYYY/MM/DD format)
         const dob = new Date(dateOfBirth);
         const year = dob.getFullYear();
         const month = String(dob.getMonth() + 1).padStart(2, '0');
         const day = String(dob.getDate()).padStart(2, '0');
-        const generatedPassword = `${year}${month}${day}`;
+        const generatedPassword = `${year}/${month}/${day}`;
 
         // Create student
         const student = await Student.create({
@@ -338,7 +338,7 @@ export const promoteStudents = async (req, res) => {
  */
 export const bulkUploadStudents = async (req, res) => {
     try {
-        const { students, defaultDepartment, defaultSemester, defaultAdmissionYear } = req.body;
+        const { students, defaultDepartment, defaultProgram, defaultSemester, defaultAdmissionYear } = req.body;
 
         if (!students || !Array.isArray(students) || students.length === 0) {
             return res.status(400).json({ success: false, message: 'No student data provided' });
@@ -366,26 +366,53 @@ export const bulkUploadStudents = async (req, res) => {
             }
             processedRollNumbers.add(upperRoll);
 
-            // Defaults & Formatting
-            // Generate password from DOB if available, else default to '123456'
-            let password = 'password123';
+            let password = '2000/01/01';
             let dobDate;
              
             if (studentData.dateOfBirth) {
                 // Try to parse DOB
-                dobDate = new Date(studentData.dateOfBirth);
+                // Handle DD/MM/YYYY or DD-MM-YYYY manually
+                let dateStr = String(studentData.dateOfBirth).trim();
+                
+                // Regex for DD/MM/YYYY or DD-MM-YYYY
+                const dmy = dateStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+                
+                // Regex for Excel Serial Number (e.g., 38245 or 45201.5)
+                const isExcelSerial = /^\d+(\.\d+)?$/.test(dateStr);
+
+                if (dmy) {
+                    // dmy[1] = Day, dmy[2] = Month, dmy[3] = Year
+                    dobDate = new Date(`${dmy[3]}-${dmy[2]}-${dmy[1]}`);
+                } else if (isExcelSerial) {
+                    // Convert Excel Serial to JS Date
+                    // Excel base date: Dec 30, 1899. Unix epoch: Jan 1, 1970
+                    // Diff: 25569 days
+                    const serial = parseFloat(dateStr);
+                    // Adjust for Excel leap year bug (1900 is not leap year but Excel thinks so) - usually negligible for modern dates
+                    // Simple conversion: (Serial - 25569) * 86400 * 1000
+                    const utc_days = Math.floor(serial - 25569);
+                    const utc_value = utc_days * 86400;
+                    dobDate = new Date(utc_value * 1000);
+                    
+                    // Adjust timezone offset if needed, but UTC date usually works. 
+                    // However, we want the date part. 
+                    // Often Excel dates are local. 
+                    // Let's ensure we get the right YYYY-MM-DD
+                } else {
+                    dobDate = new Date(dateStr);
+                }
+
                 if (!isNaN(dobDate.getTime())) {
                      const y = dobDate.getFullYear();
                      const m = String(dobDate.getMonth() + 1).padStart(2, '0');
                      const d = String(dobDate.getDate()).padStart(2, '0');
-                     password = `${y}${m}${d}`;
+                     password = `${y}/${m}/${d}`;
                 } else {
-                    // Invalid DOB provided, fallback to current date for validation but warn?
-                    // Or just use default password
-                    dobDate = new Date(); // Default to today if invalid? Better to be strict? 
-                    // Let's set default DOB to 2000-01-01 if missing/invalid to allow upload
+                    console.log('Invalid DOB parsed:', studentData.dateOfBirth, 'Fallback to default');
                     dobDate = new Date('2000-01-01');
+                    password = '2000/01/01';
                 }
+                console.log(`[DEBUG] Roll: ${studentData.rollNumber}, Raw DOB: ${studentData.dateOfBirth}, Parsed DOB: ${dobDate}, Generated PW: ${password}`);
             } else {
                 dobDate = new Date('2000-01-01'); // Default DOB
             }
@@ -405,12 +432,31 @@ export const bulkUploadStudents = async (req, res) => {
                 
                 // Academic Defaults
                 department: studentData.department || defaultDepartment,
+                program: (function() {
+                    const rawProg = studentData.program || defaultProgram || 'BA';
+                    // Map common frontend values to Schema Enum
+                    const map = {
+                        'B.T.C': 'D.El.Ed.(BTC)',
+                        'BTC': 'D.El.Ed.(BTC)',
+                        'D.El.Ed': 'D.El.Ed.(BTC)',
+                        'B.A': 'BA',
+                        'BA': 'BA',
+                        'B.Sc': 'B.Sc',
+                        'B.Com': 'B.Com',
+                        'LL.B': 'LL.B',
+                        'LLB': 'LL.B',
+                        'B.Ed': 'B.Ed',
+                        'M.A': 'M.A',
+                        'M.Sc': 'M.Sc'
+                    };
+                    return map[rawProg] || rawProg;
+                })(),
                 currentSemester: studentData.currentSemester || defaultSemester || 1,
                 admissionYear: studentData.admissionYear || defaultAdmissionYear || new Date().getFullYear(),
                 batch: studentData.batch || `${new Date().getFullYear()}-${new Date().getFullYear() + 3}`,
                 
                 dateOfBirth: dobDate,
-                password: await bcrypt.hash(password, 10), // Hash manually since insertMany doesn't trigger pre-save hooks!
+                password: password, // Plain text — pre('save') hook in Student model will hash via bcrypt
                 isVerified: true
             });
         }

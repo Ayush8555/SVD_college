@@ -188,6 +188,99 @@ const ResultPage = () => {
         setError(null);
     };
 
+    const handlePrint = () => {
+        if (!resultData) return;
+        const { student, result } = resultData;
+        const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+        const totalObtained = result.subjects.reduce((sum, s) => sum + s.marks.total, 0);
+        const totalMax = result.subjects.reduce((sum, s) => sum + (s.marks.maxMarks || 100), 0);
+        const division = result.division || (result.percentage >= 60 ? 'FIRST' : result.percentage >= 45 ? 'SECOND' : 'THIRD');
+        const logoUrl = window.location.origin + '/vbspu-logo.png';
+        const studentName = student.name || ((student.firstName || '') + ' ' + (student.lastName || ''));
+
+        const subjectRows = result.subjects.map((sub, idx) =>
+          '<tr>' +
+            '<td style="border:1px solid #333;padding:6px 10px;text-transform:uppercase;font-size:13px;">Paper ' + (romanNumerals[idx] || (idx+1)) + ' : ' + sub.courseName + '</td>' +
+            '<td style="border:1px solid #333;padding:6px 10px;text-align:center;font-weight:bold;font-size:13px;">' + String(sub.marks.total).padStart(3,'0') + '</td>' +
+            '<td style="border:1px solid #333;padding:6px 10px;text-align:center;font-size:13px;">' + (sub.marks.maxMarks || 100) + '</td>' +
+          '</tr>'
+        ).join('');
+
+        const fullHtml = '<!DOCTYPE html>' +
+'<html><head><meta charset="UTF-8">' +
+'<title>Marksheet - ' + studentName + '</title>' +
+'<style>' +
+'@page { size: A4; margin: 10mm 15mm; }' +
+'* { margin: 0; padding: 0; box-sizing: border-box; }' +
+'body { font-family: "Times New Roman", Georgia, serif; color: #000; background: #fff; font-size: 14px; }' +
+'</style></head><body>' +
+'<div style="padding:10mm 5mm;max-width:210mm;margin:0 auto;">' +
+
+'<div style="display:flex;align-items:center;justify-content:center;margin-bottom:8px;">' +
+'<img src="' + logoUrl + '" alt="Logo" style="width:75px;height:75px;object-fit:contain;margin-right:20px;" />' +
+'<div style="text-align:center;">' +
+'<h1 style="font-size:20px;font-weight:bold;letter-spacing:0.5px;margin:0;">VEER BAHADUR SINGH PURVANCHAL UNIVERSITY, JAUNPUR</h1>' +
+'<h2 style="font-size:17px;font-weight:bold;margin-top:4px;">वीर बहादुर सिंह पूर्वांचल विश्वविद्यालय, जौनपुर</h2>' +
+'</div></div>' +
+
+'<div style="text-align:center;margin-bottom:20px;">' +
+'<p style="font-size:14px;font-weight:bold;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">STATEMENT OF MARKS &amp; GRADE SHEET</p>' +
+'<p style="font-size:13px;font-weight:bold;text-transform:uppercase;">' + (student.department || '') + ' ' + (result.semester || '') + ' SEMESTER EXAMINATION &#8211; ' + (result.academicYear || '') + '</p>' +
+'</div>' +
+
+'<table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:13px;">' +
+'<tr><td style="padding:6px 0;width:25%;"><strong>Name</strong></td>' +
+'<td style="padding:6px 0;width:25%;text-transform:uppercase;">: ' + studentName + '</td>' +
+'<td style="padding:6px 0;width:25%;"><strong>Roll No.</strong></td>' +
+'<td style="padding:6px 0;width:25%;font-weight:bold;">: ' + student.rollNumber + '</td></tr>' +
+'<tr><td style="padding:6px 0;"><strong>Father\'s Name</strong></td>' +
+'<td style="padding:6px 0;text-transform:uppercase;">: ' + (student.fatherName || '—') + '</td>' +
+'<td style="padding:6px 0;"><strong>Enrolment No.</strong></td>' +
+'<td style="padding:6px 0;">: ' + (student.enrollmentNo || '') + '</td></tr>' +
+'<tr><td style="padding:6px 0;"><strong>Mother\'s Name</strong></td>' +
+'<td style="padding:6px 0;text-transform:uppercase;">: ' + (student.motherName || '—') + '</td>' +
+'<td style="padding:6px 0;"><strong>Category</strong></td>' +
+'<td style="padding:6px 0;">: ' + (student.category || 'Regular') + '</td></tr>' +
+'</table>' +
+'<div style="margin-bottom:20px;font-size:13px;"><strong>Name of Institution / College</strong>' +
+'<span style="margin-left:20px;text-transform:uppercase;">: (647) S V D GURUKUL VIDHI MAHAVIDYALAY, DUMDUMA, UNCHGAON, JAUNPUR</span></div>' +
+
+'<table style="width:100%;border-collapse:collapse;margin-bottom:10px;">' +
+'<thead><tr>' +
+'<th style="border:1px solid #333;padding:8px 10px;text-align:left;font-size:14px;font-weight:bold;width:60%;">PAPERS</th>' +
+'<th style="border:1px solid #333;padding:8px 10px;text-align:center;font-size:14px;font-weight:bold;width:20%;">MARKS OBTAINED</th>' +
+'<th style="border:1px solid #333;padding:8px 10px;text-align:center;font-size:14px;font-weight:bold;width:20%;">MAX MARKS</th>' +
+'</tr></thead><tbody>' +
+subjectRows +
+'</tbody><tfoot>' +
+'<tr><td style="border:1px solid #333;padding:6px 10px;"></td>' +
+'<td style="border:1px solid #333;padding:6px 10px;text-align:center;font-weight:bold;font-size:14px;">TOTAL</td>' +
+'<td style="border:1px solid #333;padding:6px 10px;text-align:center;font-weight:bold;font-size:14px;">' + totalObtained + ' / ' + totalMax + '</td></tr>' +
+'<tr><td style="border:1px solid #333;padding:6px 10px;font-weight:bold;font-size:13px;">RESULT: ' + (result.result || 'PASS').toUpperCase() + '</td>' +
+'<td style="border:1px solid #333;padding:6px 10px;text-align:right;font-weight:bold;font-size:13px;" colspan="2">DIVISION: ' + division + '</td></tr>' +
+'</tfoot></table>' +
+
+'<div style="border:1px solid #ccc;padding:10px;margin:20px 0;font-size:11px;line-height:1.5;">' +
+'<span style="color:#dc2626;font-weight:bold;">Disclaimer : </span>' +
+'<span>Neither webmaster nor Veer Bahadur Singh Purvanchal University is responsible for any inadvertent error that may crept in the results being published on NET. The results published on net are immediate information for Students. This cannot be treated as original mark sheet. Original mark sheets will be issued by the Controller of Examinations office, Veer Bahadur Singh Purvanchal University, separately.</span>' +
+'</div>' +
+
+'<div style="font-size:11px;color:#666;"><p>Copyright &copy; ' + new Date().getFullYear() + ' VBSPU | All rights reserved.</p></div>' +
+
+'</div>' +
+'<script>window.onload=function(){setTimeout(function(){window.print();},800);};<\/script>' +
+'</body></html>';
+
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            alert('Please allow pop-ups to print the marksheet.');
+            return;
+        }
+        printWindow.document.open();
+        printWindow.document.write(fullHtml);
+        printWindow.document.close();
+    };
+
     const getGradeInfo = (percentage) => {
         if (percentage >= 90) return { grade: 'A+', label: 'Outstanding', color: 'from-emerald-400 to-emerald-600' };
         if (percentage >= 80) return { grade: 'A', label: 'Excellent', color: 'from-green-400 to-green-600' };
@@ -229,7 +322,7 @@ const ResultPage = () => {
             )}
 
             {/* Hero Section */}
-            <div className="relative py-16 overflow-hidden">
+            <div className="relative py-16 overflow-hidden no-print">
                 {/* Animated Background Elements */}
                 <div className="absolute inset-0">
                     <div className="absolute top-20 left-10 w-72 h-72 bg-accent-500/20 rounded-full blur-3xl animate-float"></div>
@@ -558,7 +651,7 @@ const ResultPage = () => {
                             {/* Print Button */}
                             <div className="flex justify-center">
                                 <button 
-                                    onClick={() => window.print()}
+                                    onClick={handlePrint}
                                     className="inline-flex items-center gap-3 px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-semibold shadow-xl hover:shadow-2xl transition-all hover:-translate-y-0.5"
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -180,7 +180,7 @@ const StudentLogin = () => {
                                             type="password"
                                             id="password"
                                             className={`block w-full pl-11 pr-4 py-4 bg-slate-800/50 border ${focusedInput === 'password' ? 'border-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.3)]' : 'border-white/10'} rounded-xl text-white placeholder-slate-500 focus:outline-none focus:bg-slate-800/80 transition-all duration-300`}
-                                            placeholder="••••••••"
+                                            placeholder="DOB e.g. 2002/05/15"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             onFocus={() => handleFocus('password')}

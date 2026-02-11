@@ -69,7 +69,7 @@ const studentFeeSchema = new mongoose.Schema({
 studentFeeSchema.index({ student: 1, feeStructure: 1 }, { unique: true });
 
 // Middleware to update status and dueAmount before saving
-studentFeeSchema.pre('save', function(next) {
+studentFeeSchema.pre('save', function() {
   this.dueAmount = this.totalAmount - this.paidAmount;
   
   if (this.paidAmount >= this.totalAmount) {
@@ -79,7 +79,6 @@ studentFeeSchema.pre('save', function(next) {
   } else {
     this.status = 'Pending';
   }
-  next();
 });
 
 const StudentFee = mongoose.model('StudentFee', studentFeeSchema);

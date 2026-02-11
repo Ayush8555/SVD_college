@@ -71,12 +71,12 @@ const StudentLoginPage = () => {
                                 name="password"
                                 type="password"
                                 required
-                                placeholder="Date of Birth (YYYYMMDD)"
+                                placeholder="Date of Birth (YYYY/MM/DD)"
                                 value={credentials.password}
                                 onChange={handleChange}
                             />
                             <p className="mt-1 text-xs text-gray-500">
-                                Default password is your DOB (e.g., 20020515)
+                                Default password is your DOB (e.g., 2002/05/15)
                             </p>
                         </div>
 

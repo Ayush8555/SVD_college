@@ -1,6 +1,7 @@
 import FeeStructure from '../models/FeeStructure.js';
 import StudentFee from '../models/StudentFee.js';
 import Student from '../models/Student.js';
+import FeeExtensionRequest from '../models/FeeExtensionRequest.js';
 
 // @desc    Create a new fee structure
 // @route   POST /api/fees/structure
@@ -15,6 +16,10 @@ export const createFeeStructure = async (req, res) => {
 
     res.status(201).json({ success: true, data: feeStructure });
   } catch (err) {
+    console.error('createFeeStructure ERROR:', err);
+    if (err.code === 11000) {
+      return res.status(400).json({ success: false, message: 'A fee structure with this name, academic year, department and semester already exists.' });
+    }
     res.status(400).json({ success: false, message: err.message });
   }
 };
@@ -225,6 +230,181 @@ export const recordPayment = async (req, res) => {
             message: 'Payment recorded successfully', 
             data: feeRecord,
             receipt: newTransaction
+        });
+
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+// @desc    Student records a fee payment
+// @route   POST /api/fees/student-pay
+// @access  Student
+export const studentPayFee = async (req, res) => {
+    try {
+        const { studentFeeId, amount, paymentMode, referenceId, remarks } = req.body;
+        const studentId = req.user._id;
+
+        const feeRecord = await StudentFee.findOne({ _id: studentFeeId, student: studentId });
+        if (!feeRecord) {
+            return res.status(404).json({ success: false, message: 'Fee record not found' });
+        }
+
+        if (feeRecord.status === 'Paid') {
+            return res.status(400).json({ success: false, message: 'Fee already fully paid' });
+        }
+
+        if (!amount || amount <= 0) {
+            return res.status(400).json({ success: false, message: 'Invalid payment amount' });
+        }
+
+        if (!paymentMode) {
+            return res.status(400).json({ success: false, message: 'Payment mode is required' });
+        }
+
+        // Create transaction
+        const newTransaction = {
+            amount: Number(amount),
+            paymentMode,
+            referenceId: referenceId || '',
+            remarks: remarks || `Student payment via ${paymentMode}`,
+            date: new Date(),
+            receiptNumber: `RCPT-${Date.now()}-${Math.floor(Math.random() * 10000)}`
+        };
+
+        feeRecord.transactions.push(newTransaction);
+        feeRecord.paidAmount += Number(amount);
+
+        // Status update handled by pre-save middleware
+        await feeRecord.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Payment recorded successfully',
+            data: feeRecord,
+            receipt: newTransaction
+        });
+
+    } catch (err) {
+        console.error('studentPayFee ERROR:', err);
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+// @desc    Student creates a date extension request
+// @route   POST /api/fees/extension-request
+// @access  Student
+export const createExtensionRequest = async (req, res) => {
+    try {
+        const { studentFeeId, requestedDueDate, reason } = req.body;
+        const studentId = req.user._id;
+
+        if (!studentFeeId || !requestedDueDate || !reason) {
+            return res.status(400).json({ success: false, message: 'Please provide fee ID, requested date, and reason' });
+        }
+
+        const feeRecord = await StudentFee.findOne({ _id: studentFeeId, student: studentId })
+            .populate('feeStructure', 'dueDate name');
+
+        if (!feeRecord) {
+            return res.status(404).json({ success: false, message: 'Fee record not found' });
+        }
+
+        if (feeRecord.status === 'Paid') {
+            return res.status(400).json({ success: false, message: 'Fee is already paid, no extension needed' });
+        }
+
+        // Check if a pending request already exists
+        const existing = await FeeExtensionRequest.findOne({
+            student: studentId,
+            studentFee: studentFeeId,
+            status: 'Pending'
+        });
+
+        if (existing) {
+            return res.status(400).json({ success: false, message: 'You already have a pending extension request for this fee' });
+        }
+
+        const request = await FeeExtensionRequest.create({
+            student: studentId,
+            studentFee: studentFeeId,
+            currentDueDate: feeRecord.feeStructure.dueDate,
+            requestedDueDate: new Date(requestedDueDate),
+            reason
+        });
+
+        res.status(201).json({
+            success: true,
+            message: 'Extension request submitted successfully',
+            data: request
+        });
+
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+// @desc    Admin gets all extension requests
+// @route   GET /api/fees/extension-requests
+// @access  Admin
+export const getExtensionRequests = async (req, res) => {
+    try {
+        const { status } = req.query;
+        const query = {};
+        if (status) query.status = status;
+
+        const requests = await FeeExtensionRequest.find(query)
+            .populate('student', 'rollNumber firstName lastName department')
+            .populate({
+                path: 'studentFee',
+                populate: { path: 'feeStructure', select: 'name dueDate academicYear' }
+            })
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({ success: true, data: requests });
+
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+// @desc    Admin approves or rejects an extension request
+// @route   PUT /api/fees/extension-request/:id
+// @access  Admin
+export const resolveExtensionRequest = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, adminRemarks } = req.body;
+
+        if (!['Approved', 'Rejected'].includes(status)) {
+            return res.status(400).json({ success: false, message: 'Status must be Approved or Rejected' });
+        }
+
+        const request = await FeeExtensionRequest.findById(id)
+            .populate('studentFee');
+
+        if (!request) {
+            return res.status(404).json({ success: false, message: 'Extension request not found' });
+        }
+
+        if (request.status !== 'Pending') {
+            return res.status(400).json({ success: false, message: 'Request already resolved' });
+        }
+
+        request.status = status;
+        request.adminRemarks = adminRemarks || '';
+        request.resolvedBy = req.user._id;
+        request.resolvedAt = new Date();
+        await request.save();
+
+        // If approved, update the FeeStructure dueDate for this student's context
+        // Since FeeStructure dueDate is shared, we don't change it globally.
+        // Instead we note the approval. The admin can manually adjust if needed.
+
+        res.status(200).json({
+            success: true,
+            message: `Extension request ${status.toLowerCase()} successfully`,
+            data: request
         });
 
     } catch (err) {

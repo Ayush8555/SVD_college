@@ -1,12 +1,152 @@
 import React, { useRef } from 'react';
 import Button from './ui/Button';
-import OfficialMarksheet from './OfficialMarksheet';
 
 const ResultDisplay = ({ result, student }) => {
   const componentRef = useRef();
 
   const handlePrint = () => {
-    window.print();
+    if (!result || !student) return;
+
+    const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+    const totalObtained = result.subjects.reduce((sum, s) => sum + s.marks.total, 0);
+    const totalMax = result.subjects.reduce((sum, s) => sum + (s.marks.maxMarks || 100), 0);
+    const formatDate = (d) => {
+      const dt = new Date(d);
+      return `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`;
+    };
+    const division = result.division || (result.percentage >= 60 ? 'FIRST' : result.percentage >= 45 ? 'SECOND' : 'THIRD');
+    const logoUrl = `${window.location.origin}/vbspu-logo.png`;
+
+    // Build subject rows as raw HTML string
+    const subjectRows = result.subjects.map((sub, idx) => `
+      <tr>
+        <td style="border:1px solid #111;padding:8px;text-transform:uppercase;">Paper ${romanNumerals[idx] || (idx+1)} : ${sub.courseName}</td>
+        <td style="border:1px solid #111;padding:8px;text-align:center;font-weight:bold;">${String(sub.marks.total).padStart(3,'0')}</td>
+        <td style="border:1px solid #111;padding:8px;text-align:center;">${sub.marks.maxMarks || 100}</td>
+      </tr>
+    `).join('');
+
+    const fullHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <title>Official Marksheet - ${student.firstName} ${student.lastName}</title>
+  <style>
+    @page { size: A4; margin: 0; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Times New Roman', Georgia, serif; color: #000; background: #fff; }
+  </style>
+</head>
+<body>
+  <div style="padding:15mm 20mm;width:210mm;min-height:297mm;">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+      <img src="${logoUrl}" alt="VBSPU Logo" style="width:80px;height:80px;object-fit:contain;margin-right:16px;" />
+      <div style="text-align:center;">
+        <h1 style="font-size:22px;font-weight:bold;letter-spacing:1px;">VEER BAHADUR SINGH PURVANCHAL UNIVERSITY, JAUNPUR</h1>
+        <h2 style="font-size:18px;font-weight:bold;margin-top:2px;">वीर बहादुर सिंह पूर्वांचल विश्वविद्यालय, जौनपुर</h2>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <div style="text-align:center;margin-bottom:24px;">
+      <h3 style="font-size:16px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;">STATEMENT OF MARKS &amp; GRADE SHEET</h3>
+      <p style="font-size:14px;font-weight:bold;text-transform:uppercase;margin-top:4px;">${student.department} ${result.semester} SEMESTER EXAMINATION - ${result.academicYear}</p>
+    </div>
+
+    <!-- Student Details -->
+    <div style="margin-bottom:24px;font-size:13px;line-height:2.2;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;">
+        <div style="display:flex;"><span style="font-weight:bold;width:170px;flex-shrink:0;">Name</span><span style="font-weight:bold;text-transform:uppercase;">: ${student.firstName} ${student.lastName}</span></div>
+        <div style="display:flex;"><span style="font-weight:bold;width:170px;flex-shrink:0;">Roll No.</span><span style="font-weight:bold;">: ${student.rollNumber}</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;">
+        <div style="display:flex;"><span style="font-weight:bold;width:170px;flex-shrink:0;">Father's Name</span><span style="text-transform:uppercase;">: ${student.fatherName || '________________'}</span></div>
+        <div style="display:flex;"><span style="font-weight:bold;width:170px;flex-shrink:0;">Enrolment No.</span><span>: ${student.enrollmentNo || ''}</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;">
+        <div style="display:flex;"><span style="font-weight:bold;width:170px;flex-shrink:0;">Mother's Name</span><span style="text-transform:uppercase;">: ${student.motherName || '________________'}</span></div>
+        <div style="display:flex;"><span style="font-weight:bold;width:170px;flex-shrink:0;">Category</span><span>: ${student.category || 'Regular'}</span></div>
+      </div>
+      <div style="display:flex;margin-top:4px;">
+        <span style="font-weight:bold;width:170px;flex-shrink:0;color:#1565c0;">Name of Institution / College</span>
+        <span style="text-transform:uppercase;">: (647) S V D GURUKUL VIDHI MAHAVIDYALAY, DUMDUMA, UNCHGAON, JAUNPUR</span>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <table style="width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px;">
+      <thead>
+        <tr>
+          <th style="border:1px solid #111;padding:8px;text-align:left;width:55%;">PAPERS</th>
+          <th style="border:1px solid #111;padding:8px;text-align:center;width:25%;">MARKS OBTAINED</th>
+          <th style="border:1px solid #111;padding:8px;text-align:center;width:20%;">MAX MARKS</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${subjectRows}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td style="border:1px solid #111;padding:8px;font-weight:bold;text-transform:uppercase;">TOTAL</td>
+          <td style="border:1px solid #111;padding:8px;text-align:center;font-weight:bold;">${totalObtained} / ${totalMax}</td>
+          <td style="border:1px solid #111;padding:8px;text-align:center;"></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <!-- Result -->
+    <div style="display:flex;justify-content:space-between;margin-bottom:32px;font-size:13px;">
+      <div>
+        <p style="font-weight:bold;">RESULT: ${(result.result || 'PASSED').toUpperCase()}</p>
+        <p style="font-weight:bold;">DIVISION: ${division}</p>
+      </div>
+      <div style="text-align:right;">
+        <p style="font-weight:bold;">GRAND TOTAL: ${totalObtained} / ${totalMax}</p>
+      </div>
+    </div>
+
+    <!-- Date + Signature -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:48px;margin-bottom:24px;">
+      <div style="font-size:13px;">
+        <p style="font-weight:bold;">Dated : ${formatDate(result.declaredDate || new Date())}</p>
+      </div>
+      <div style="text-align:center;display:flex;flex-direction:column;align-items:center;">
+        <svg width="120" height="50" viewBox="0 0 120 50" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:4px;">
+          <path d="M10 35 C15 20, 25 15, 30 25 C35 35, 40 10, 50 20 C55 25, 45 35, 55 30 C65 25, 60 15, 70 20 C75 23, 72 30, 80 25 C85 22, 82 18, 90 22 C95 24, 92 28, 100 25 C105 23, 108 20, 115 22" stroke="#1a237e" stroke-width="1.8" stroke-linecap="round" fill="none" />
+          <path d="M25 38 C30 36, 40 42, 50 38 C55 36, 60 40, 70 37" stroke="#1a237e" stroke-width="1.2" stroke-linecap="round" fill="none" />
+        </svg>
+        <p style="font-size:13px;font-weight:bold;">Controller of Examinations</p>
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div style="border:1px solid #999;padding:12px;margin-bottom:16px;font-size:11px;line-height:1.6;">
+      <span style="color:#dc2626;font-weight:bold;">Disclaimer : </span>
+      <span>Neither webmaster nor Veer Bahadur Singh Purvanchal University is responsible for any inadvertent error that may crept in the results being published on NET. The results published on net are immediate information for Students. This cannot be treated as original mark sheet. Original mark sheets will be issued by the Controller of Examinations office, Veer Bahadur Singh Purvanchal University, separately.</span>
+    </div>
+
+    <!-- Copyright -->
+    <div style="font-size:11px;color:#666;">
+      <p>Copyright &copy; ${new Date().getFullYear()} VBSPU | All rights reserved.</p>
+    </div>
+  </div>
+
+  <script>
+    window.onload = function() {
+      setTimeout(function() { window.print(); }, 800);
+    };
+  </script>
+</body>
+</html>`;
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Please allow pop-ups to print the marksheet.');
+      return;
+    }
+    printWindow.document.open();
+    printWindow.document.write(fullHtml);
+    printWindow.document.close();
   };
 
   if (!result || !student) return null;
@@ -19,18 +159,11 @@ const ResultDisplay = ({ result, student }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end print:hidden">
+      <div className="flex justify-end no-print">
         <Button onClick={handlePrint} variant="outline" className="gap-2">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
             Print Official Marksheet
         </Button>
-      </div>
-
-      {/* Hidden Official Marksheet for Printing - Native Method */}
-      {/* We use h-0 overflow-hidden so it exists in DOM (for print medai to see) but invisible on screen */}
-      {/* OFF-SCREEN but Visible to Print Engine */}
-      <div id="printable-area" className="hidden print:block">
-        <OfficialMarksheet student={student} result={result} />
       </div>
 
       <div 
@@ -47,18 +180,33 @@ const ResultDisplay = ({ result, student }) => {
         <div className="relative z-10">
             {/* Header */}
             <header className="border-b-4 border-primary-900 pb-6 mb-8 text-center relative">
-                <div className="flex justify-center items-center mb-4 gap-4">
+                <div className="flex items-center justify-center mb-6 border-b-2 border-gray-900 pb-4">
                      {/* Logo */}
-                     <div className="w-16 h-16 md:w-24 md:h-24 bg-primary-900 text-white rounded-full flex items-center justify-center font-bold text-xl md:text-3xl shadow-xl border-4 border-white ring-4 ring-primary-100">
-                         SVD
+                     <div className="flex-shrink-0 mr-4">
+                         <img 
+                             src="/vbspu-logo.png" 
+                             alt="VBSPU Logo" 
+                             className="w-16 h-16 md:w-24 md:h-24 object-contain"
+                         />
+                     </div>
+                     
+                     {/* University Name */}
+                     <div className="text-center">
+                         <h1 className="text-xl md:text-3xl font-bold text-gray-900 font-serif leading-tight">
+                             VEER BAHADUR SINGH PURVANCHAL UNIVERSITY, JAUNPUR
+                         </h1>
+                         <h2 className="text-lg md:text-2xl font-bold text-gray-800 font-serif mt-1">
+                             वीर बहादुर सिंह पूर्वांचल विश्वविद्यालय, जौनपुर
+                         </h2>
                      </div>
                 </div>
-                <h1 className="text-2xl md:text-5xl font-bold text-primary-900 uppercase tracking-tight mb-2 font-heading break-words">
-                    SVD Gurukul Mahavidyalaya
-                </h1>
-                <p className="text-xs md:text-lg text-primary-600 font-bold uppercase tracking-widest px-2">
-                    Dumduma, Unchgaon, Jaunpur, Uttar Pradesh - 223102 • Est. 2010
-                </p>
+
+                <div className="text-center mb-6">
+                    <h3 className="text-lg md:text-xl font-bold uppercase tracking-wider underline underline-offset-4 mb-2">STATEMENT OF MARKS</h3>
+                    <p className="text-sm md:text-lg font-bold uppercase">
+                        (647) S V D GURUKUL VIDHI MAHAVIDYALAY, DUMDUMA, UNCHGAON, JAUNPUR
+                    </p>
+                </div>
                 <div className="mt-8 relative inline-block max-w-full">
                     <span className="relative z-10 px-4 md:px-8 py-2 bg-white text-lg md:text-xl font-bold text-gray-900 uppercase tracking-wider border-2 border-primary-900 block md:inline-block">
                         Statement of Marks
@@ -93,28 +241,54 @@ const ResultDisplay = ({ result, student }) => {
             </section>
 
             {/* Grades Table */}
-            <div className="overflow-x-auto border border-gray-300 rounded-lg mb-8">
-                <table className="w-full text-xs md:text-base min-w-[600px]">
+            <div className="overflow-x-auto border border-gray-900 rounded-lg mb-8">
+                <table className="w-full text-xs md:text-base min-w-[600px] font-serif">
                     <thead>
-                        <tr className="bg-gray-100 text-gray-900 text-[10px] md:text-xs uppercase tracking-wider border-b border-gray-300">
-                            <th className="px-2 md:px-4 py-2 md:py-3 text-left w-16 md:w-24 font-bold border-r border-gray-300">Code</th>
-                            <th className="px-2 md:px-4 py-2 md:py-3 text-left font-bold border-r border-gray-300">Course Title</th>
-                            <th className="px-2 md:px-4 py-2 md:py-3 text-center w-16 md:w-24 font-bold border-r border-gray-300">Int. Marks</th>
-                            <th className="px-2 md:px-4 py-2 md:py-3 text-center w-16 md:w-24 font-bold border-r border-gray-300">Ext. Marks</th>
-                            <th className="px-2 md:px-4 py-2 md:py-3 text-center w-16 md:w-24 font-bold">Total Marks</th>
+                        <tr className="bg-gray-100 text-gray-900 border-b border-gray-900">
+                            <th rowSpan="2" className="px-2 md:px-4 py-2 text-left w-1/3 border-r border-gray-900 align-middle font-bold uppercase">Papers</th>
+                            <th colSpan="2" className="px-2 md:px-4 py-2 text-center font-bold border-r border-gray-900 uppercase">Marks Obtained</th>
+                            <th rowSpan="2" className="px-2 md:px-4 py-2 text-center w-24 font-bold align-middle uppercase">Total</th>
+                        </tr>
+                        <tr className="bg-gray-50 text-gray-900 border-b border-gray-900">
+                             <th className="px-2 py-1 text-center border-r border-gray-900 w-24">
+                                Theory
+                                <div className="text-[10px] font-normal border-t border-gray-400 mt-1">Obt / Max</div>
+                            </th>
+                            <th className="px-2 py-1 text-center border-r border-gray-900 w-24">
+                                Pract. / Viva
+                                <div className="text-[10px] font-normal border-t border-gray-400 mt-1">Obt / Max</div>
+                            </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
+                    <tbody className="divide-y divide-gray-900">
                         {result.subjects.map((sub, idx) => (
                             <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                <td className="px-2 md:px-4 py-2 md:py-3 font-mono text-gray-600 border-r border-gray-200">{sub.code || sub.courseCode || '-'}</td>
-                                <td className="px-2 md:px-4 py-2 md:py-3 font-medium text-gray-900 border-r border-gray-200">{sub.name || sub.courseName}</td>
-                                <td className="px-2 md:px-4 py-2 md:py-3 text-center text-gray-600 border-r border-gray-200">{sub.marks.internal}</td>
-                                <td className="px-2 md:px-4 py-2 md:py-3 text-center text-gray-600 border-r border-gray-200">{sub.marks.external}</td>
-                                <td className="px-2 md:px-4 py-2 md:py-3 text-center font-bold text-gray-900">{sub.marks.total}</td>
+                                <td className="px-2 md:px-4 py-2 font-medium text-gray-900 border-r border-gray-900 uppercase">
+                                    <span className="font-bold mr-2">{sub.courseCode}:</span> {sub.courseName}
+                                </td>
+                                <td className="px-2 md:px-4 py-2 text-center text-gray-900 border-r border-gray-900">
+                                    {sub.marks.external} / {Math.round((sub.marks.maxMarks || 100) * 0.75)}
+                                </td>
+                                <td className="px-2 md:px-4 py-2 text-center text-gray-900 border-r border-gray-900">
+                                    {sub.marks.internal} / {Math.round((sub.marks.maxMarks || 100) * 0.25)}
+                                </td>
+                                <td className="px-2 md:px-4 py-2 text-center font-bold text-gray-900">
+                                    {sub.marks.total} / {sub.marks.maxMarks || 100}
+                                </td>
                             </tr>
                         ))}
                     </tbody>
+                    <tfoot className="bg-gray-100 font-bold border-t border-gray-900">
+                        <tr>
+                            <td className="px-4 py-3 text-right uppercase border-r border-gray-900">Grand Total</td>
+                            <td colSpan="2" className="px-4 py-3 text-center border-r border-gray-900">
+                                {result.subjects.reduce((sum, s) => sum + s.marks.total, 0)} / {result.subjects.reduce((sum, s) => sum + (s.marks.maxMarks || 100), 0)}
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                                {result.subjects.reduce((sum, s) => sum + s.marks.total, 0)}
+                            </td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
 
@@ -139,17 +313,22 @@ const ResultDisplay = ({ result, student }) => {
                 </div>
             </footer>
             
-            <div className="mt-12 pt-4 border-t border-gray-200 flex justify-between items-end">
-                <div className="text-[10px] text-gray-400 max-w-md">
+            <div className="mt-12 pt-4 border-t-2 border-gray-900 flex justify-between items-end">
+                <div className="text-xs text-gray-500 max-w-md">
                     Note: This is a computer generated result. The institute is not responsible for any error. 
                     Original grade cards will be issued by the department.
                 </div>
-                <div className="text-center">
-                    {/* Fake Signature */}
-                    <div className="font-heading text-xl text-gray-800 italic mb-1 font-bold">Dr. Controller</div>
-                    <div className="text-[10px] uppercase font-bold tracking-widest border-t border-gray-400 pt-1">
+                <div className="text-center flex flex-col items-center">
+                    {/* Handwritten Signature SVG */}
+                    <svg width="120" height="50" viewBox="0 0 120 50" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-2">
+                        <path d="M10 35 C15 20, 25 15, 30 25 C35 35, 40 10, 50 20 C55 25, 45 35, 55 30 C65 25, 60 15, 70 20 C75 23, 72 30, 80 25 C85 22, 82 18, 90 22 C95 24, 92 28, 100 25 C105 23, 108 20, 115 22" 
+                            stroke="#1a237e" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+                        <path d="M25 38 C30 36, 40 42, 50 38 C55 36, 60 40, 70 37" 
+                            stroke="#1a237e" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+                    </svg>
+                    <p className="text-sm font-bold uppercase tracking-wider">
                         Controller of Examinations
-                    </div>
+                    </p>
                 </div>
             </div>
         </div>

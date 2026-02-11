@@ -100,6 +100,16 @@ const StudentProfile = () => {
 
 
                     </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-100">
+                        <div>
+                            <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Father's Name</p>
+                            <p className="text-sm font-medium text-gray-900 mt-1">{student?.fatherName || 'N/A'}</p>
+                        </div>
+                         <div>
+                            <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Mother's Name</p>
+                            <p className="text-sm font-medium text-gray-900 mt-1">{student?.motherName || 'N/A'}</p>
+                        </div>
+                    </div>
                 </Card>
 
                 {/* Academic Information */}

@@ -16,6 +16,7 @@ const BulkStudentUpload = ({ onClose, onSuccess }) => {
     const [headers, setHeaders] = useState([]);
     const [uploadConfig, setUploadConfig] = useState({
         department: 'B.Ed',
+        program: 'B.Ed',
         currentSemester: '1',
         admissionYear: new Date().getFullYear(),
         defaultPassword: 'DateOfBirth'
@@ -30,7 +31,9 @@ const BulkStudentUpload = ({ onClose, onSuccess }) => {
         enrollmentNumber: '',
         dateOfBirth: '',
         gender: '',
-        category: ''
+        category: '',
+        fatherName: '',
+        motherName: ''
     });
     
     // State for result summary
@@ -51,7 +54,7 @@ const BulkStudentUpload = ({ onClose, onSuccess }) => {
             const workbook = XLSX.read(data, { type: 'binary' });
             const sheetName = workbook.SheetNames[0];
             const sheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Header: 1 gives array of arrays
+            const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' }); // Header: 1 gives array of arrays
             
             if (jsonData.length > 0) {
                  // Scan for header row (heuristic: look for 'roll', 'name', 'enroll')
@@ -67,11 +70,16 @@ const BulkStudentUpload = ({ onClose, onSuccess }) => {
 
                 const fileHeaders = jsonData[headerRowIndex];
                 setHeaders(fileHeaders);
-                const rows = jsonData.slice(headerRowIndex + 1);
+                const rows = jsonData.slice(headerRowIndex + 1)
+                    // Filter out empty rows — a row is empty if ALL its cells are empty/whitespace
+                    .filter(row => row.some(cell => cell !== undefined && cell !== null && String(cell).trim() !== ''));
                 setParsedData(rows);
                 
                 // Auto-map columns if names match loosely
                 const newMapping = { ...columnMapping };
+                let courseColIndex = null;
+                let semColIndex = null;
+
                 fileHeaders.forEach((header, index) => {
                     if (!header) return;
                     const h = String(header).toLowerCase();
@@ -84,8 +92,52 @@ const BulkStudentUpload = ({ onClose, onSuccess }) => {
                     else if (h.includes('dob') || h.includes('birth')) newMapping.dateOfBirth = index;
                     else if (h.includes('gender')) newMapping.gender = index;
                     else if (h.includes('category')) newMapping.category = index;
+                    else if (h.includes('father') || h.includes('dad')) newMapping.fatherName = index;
+                    else if (h.includes('mother') || h.includes('mom')) newMapping.motherName = index;
+                    
+                    // Detect course/department column
+                    if (h.includes('course') || h.includes('dept') || h.includes('program') || h.includes('branch')) {
+                        courseColIndex = index;
+                    }
+                    // Detect semester column
+                    if (h.includes('sem') || h.includes('year')) {
+                        semColIndex = index;
+                    }
                 });
                 setColumnMapping(newMapping);
+
+                // Auto-detect department and semester from first data row
+                if (rows.length > 0) {
+                    const firstRow = rows[0];
+                    const newConfig = { ...uploadConfig };
+                    
+                    if (courseColIndex !== null && firstRow[courseColIndex]) {
+                        const courseVal = String(firstRow[courseColIndex]).trim();
+                        // Map common course names to our department values
+                        const courseMap = {
+                            'llb': 'LL.B', 'll.b': 'LL.B', 'll.b.': 'LL.B', 'law': 'LL.B',
+                            'b.ed': 'B.Ed', 'b.ed.': 'B.Ed', 'bed': 'B.Ed', 'education': 'B.Ed',
+                            'btc': 'B.T.C', 'b.t.c': 'B.T.C', 'b.t.c.': 'B.T.C', 'd.el.ed': 'B.T.C',
+                            'ba': 'B.A', 'b.a': 'B.A', 'b.a.': 'B.A', 'arts': 'B.A'
+                        };
+                        const mapped = courseMap[courseVal.toLowerCase()] || courseVal;
+                        if (['B.Ed', 'B.T.C', 'B.A', 'LL.B'].includes(mapped)) {
+                            newConfig.department = mapped;
+                            newConfig.program = mapped; // Auto-set program too
+                        }
+                    }
+                    
+                    if (semColIndex !== null && firstRow[semColIndex]) {
+                        const semVal = String(firstRow[semColIndex]).trim();
+                        const semNum = semVal.replace(/[^0-9]/g, '');
+                        if (semNum && parseInt(semNum) >= 1 && parseInt(semNum) <= 8) {
+                            newConfig.currentSemester = semNum;
+                        }
+                    }
+                    
+                    setUploadConfig(newConfig);
+                }
+
                 setStep(2);
             }
         };
@@ -124,6 +176,8 @@ const BulkStudentUpload = ({ onClose, onSuccess }) => {
                     dateOfBirth: getVal(columnMapping.dateOfBirth),
                     gender: getVal(columnMapping.gender),
                     category: getVal(columnMapping.category),
+                    fatherName: getVal(columnMapping.fatherName),
+                    motherName: getVal(columnMapping.motherName),
                     
                     // Add configs
                     department: uploadConfig.department,
@@ -136,6 +190,7 @@ const BulkStudentUpload = ({ onClose, onSuccess }) => {
             const res = await axios.post(`${API_URL}/students/bulk`, {
                 students: studentsToUpload,
                 defaultDepartment: uploadConfig.department,
+                defaultProgram: uploadConfig.program,
                 defaultSemester: uploadConfig.currentSemester,
                 defaultAdmissionYear: uploadConfig.admissionYear
             }, {
@@ -225,6 +280,18 @@ const BulkStudentUpload = ({ onClose, onSuccess }) => {
                                 </select>
                             </div>
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Program</label>
+                                <select 
+                                    className="w-full border-gray-300 rounded-lg shadow-sm focus:border-brand-500 focus:ring-brand-500"
+                                    value={uploadConfig.program}
+                                    onChange={e => setUploadConfig({...uploadConfig, program: e.target.value})}
+                                >
+                                    {['B.Ed', 'B.T.C', 'B.A', 'LL.B', 'B.Sc', 'B.Com', 'M.A', 'M.Sc'].map(p => (
+                                        <option key={p} value={p}>{p}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Semester</label>
                                 <select 
                                     className="w-full border-gray-300 rounded-lg shadow-sm focus:border-brand-500 focus:ring-brand-500"
@@ -248,7 +315,9 @@ const BulkStudentUpload = ({ onClose, onSuccess }) => {
                                     { label: 'Mobile (Optional)', key: 'phone' },
                                     { label: 'Email (Optional)', key: 'email' },
                                     { label: 'DOB (Optional)', key: 'dateOfBirth' },
-                                    { label: 'Gender (Optional)', key: 'gender' }
+                                    { label: 'Gender (Optional)', key: 'gender' },
+                                    { label: "Father's Name", key: 'fatherName' },
+                                    { label: "Mother's Name", key: 'motherName' }
                                 ].map(field => (
                                     <div key={field.key}>
                                         <label className="block text-xs font-medium text-gray-700 mb-1">{field.label}</label>

@@ -14,7 +14,7 @@ const FeeManagement = () => {
     name: '',
     amount: '',
     academicYear: '2024-2025',
-    department: 'Computer Science',
+    department: 'B.Ed',
     semester: 1,
     dueDate: '',
     category: 'All',
@@ -42,7 +42,11 @@ const FeeManagement = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      await feeAPI.createStructure(newStructure);
+      await feeAPI.createStructure({
+        ...newStructure,
+        amount: Number(newStructure.amount),
+        semester: Number(newStructure.semester)
+      });
       showNotification('success', 'Fee Structure Created Successfully');
       setShowCreateModal(false);
       fetchStructures();

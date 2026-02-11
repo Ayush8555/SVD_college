@@ -7,12 +7,15 @@ import {
   getMyDues,
   getStudentDuesAdmin,
   recordPayment,
-  deleteFeeStructure
+  deleteFeeStructure,
+  studentPayFee,
+  createExtensionRequest,
+  getExtensionRequests,
+  resolveExtensionRequest
 } from '../controllers/feeController.js';
 
 const router = express.Router();
 
-// Fee Structure Routes
 // Fee Structure Routes
 router.route('/structure')
   .post(protect, authorize('Admin', 'Accountant', 'Principal'), createFeeStructure)
@@ -26,6 +29,14 @@ router.post('/assign', protect, authorize('Admin', 'Accountant', 'Principal'), a
 
 // Student Routes
 router.get('/my-dues', protectStudent, getMyDues);
+router.post('/student-pay', protectStudent, studentPayFee);
+
+// Extension Request Routes (Student)
+router.post('/extension-request', protectStudent, createExtensionRequest);
+
+// Extension Request Routes (Admin)
+router.get('/extension-requests', protect, authorize('Admin', 'Accountant', 'Principal'), getExtensionRequests);
+router.put('/extension-request/:id', protect, authorize('Admin', 'Accountant', 'Principal'), resolveExtensionRequest);
 
 // Admin Student Fee Routes
 router.get('/student/:id', protect, authorize('Admin', 'Accountant', 'Principal'), getStudentDuesAdmin);

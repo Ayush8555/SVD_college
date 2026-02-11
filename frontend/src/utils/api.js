@@ -82,6 +82,10 @@ export const feeAPI = {
   getMyDues: () => api.get('/fees/my-dues'),
   getStudentDuesAdmin: (id) => api.get(`/fees/student/${id}`),
   recordPayment: (data) => api.post('/fees/pay', data),
+  studentPay: (data) => api.post('/fees/student-pay', data),
+  createExtensionRequest: (data) => api.post('/fees/extension-request', data),
+  getExtensionRequests: (params) => api.get('/fees/extension-requests', { params }),
+  resolveExtensionRequest: (id, data) => api.put(`/fees/extension-request/${id}`, data),
 };
 
 export default api;

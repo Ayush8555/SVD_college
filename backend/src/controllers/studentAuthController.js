@@ -143,6 +143,7 @@ export const loginStudent = async (req, res) => {
         }).select('+password');
 
         if (!student) {
+            console.log(`[LOGIN FAILED] Student not found: ${loginId}`);
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
 
@@ -153,7 +154,9 @@ export const loginStudent = async (req, res) => {
              return res.status(400).json({ success: false, message: 'Account not activated. Please Signup/Register first.' });
         }
 
-    const isMatch = await student.matchPassword(password);
+        const isMatch = await student.matchPassword(password);
+        console.log(`[LOGIN DEBUG] Roll: ${student.rollNumber}, InputPW: ${password}, Match: ${isMatch}`);
+        
         if (!isMatch) {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
