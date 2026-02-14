@@ -29,6 +29,11 @@ const feeStructureSchema = new mongoose.Schema({
     default: 'All', // 'General', 'OBC', or 'All'
     enum: ['All', 'General', 'OBC', 'SC', 'ST', 'EWS']
   },
+  month: {
+    type: String,
+    enum: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'N/A'],
+    default: 'N/A'
+  },
   semester: {
       type: Number,
       required: true,
@@ -49,8 +54,11 @@ const feeStructureSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-// Composite index to prevent duplicates
-feeStructureSchema.index({ name: 1, academicYear: 1, department: 1, semester: 1 }, { unique: true });
+// Composite index to prevent duplicates (only among active records)
+feeStructureSchema.index(
+  { name: 1, academicYear: 1, department: 1, semester: 1, month: 1 },
+  { unique: true, partialFilterExpression: { isActive: true } }
+);
 
 const FeeStructure = mongoose.model('FeeStructure', feeStructureSchema);
 export default FeeStructure;

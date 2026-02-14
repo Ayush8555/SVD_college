@@ -8,17 +8,44 @@ import FeeExtensionRequest from '../models/FeeExtensionRequest.js';
 // @access  Admin
 export const createFeeStructure = async (req, res) => {
   try {
-    const { name, amount, academicYear, department, category, semester, dueDate, description } = req.body;
-    
+    const { name, amount, academicYear, department, category, semester, dueDate, description, month } = req.body;
+
+    // Validate required fields explicitly for clearer error messages
+    if (!name || !amount || !academicYear || !department || !semester || !dueDate) {
+      return res.status(400).json({
+        success: false,
+        message: `Missing required fields. Required: name, amount, academicYear, department, semester, dueDate. Received: ${JSON.stringify(req.body)}`
+      });
+    }
+
+    // Drop old index if it exists (migration for month support)
+    try {
+      const collection = FeeStructure.collection;
+      const indexes = await collection.indexes();
+      // Drop any index on these fields that DOES NOT include 'month'
+      const oldIndex = indexes.find(idx =>
+        idx.key && idx.key.name === 1 && idx.key.academicYear === 1 &&
+        idx.key.department === 1 && idx.key.semester === 1 &&
+        !idx.key.month // Key check: if month is missing, it's the old index
+      );
+      if (oldIndex) {
+        await collection.dropIndex(oldIndex.name);
+        console.log(`Dropped old index ${oldIndex.name} to allow month-based uniqueness.`);
+      }
+    } catch (indexErr) {
+      console.log('Index check skipped:', indexErr.message);
+    }
+
     const feeStructure = await FeeStructure.create({
-      name, amount, academicYear, department, category, semester, dueDate, description
+      name, amount, academicYear, department, category, semester, dueDate, description,
+      month: month || 'N/A'
     });
 
     res.status(201).json({ success: true, data: feeStructure });
   } catch (err) {
     console.error('createFeeStructure ERROR:', err);
     if (err.code === 11000) {
-      return res.status(400).json({ success: false, message: 'A fee structure with this name, academic year, department and semester already exists.' });
+      return res.status(400).json({ success: false, message: 'A fee structure with these details already exists.' });
     }
     res.status(400).json({ success: false, message: err.message });
   }
@@ -98,7 +125,6 @@ export const assignFeeToStudents = async (req, res) => {
         }
 
         // Find eligible students based on Department and Category
-        // Note: Year/Semester logic can be complex, simplifying to Department for now based on Schema
         const query = { 
             department: feeStructure.department, 
             status: 'Active' 
@@ -107,10 +133,6 @@ export const assignFeeToStudents = async (req, res) => {
         if (feeStructure.category !== 'All') {
             query.category = feeStructure.category;
         }
-
-        // Also simple check for semester if student has currentSemester field (assuming Student model has it or we deduce from year)
-        // For this MVP, we will rely on admin selection or broadcast to department. 
-        // Let's stick to the plan: Department + Category match.
         
         const students = await Student.find(query);
         
@@ -118,7 +140,25 @@ export const assignFeeToStudents = async (req, res) => {
             return res.status(404).json({ success: false, message: 'No matching students found for this fee criteria' });
         }
 
-        const studentFees = students.map(student => ({
+        // Pre-filter: Find students who already have THIS specific fee structure assigned
+        const existingAssignments = await StudentFee.find({
+            feeStructure: feeStructure._id,
+            student: { $in: students.map(s => s._id) }
+        }).select('student');
+
+        const alreadyAssignedIds = new Set(existingAssignments.map(a => a.student.toString()));
+        
+        // Only create fees for students who don't already have THIS fee structure
+        const newStudents = students.filter(s => !alreadyAssignedIds.has(s._id.toString()));
+
+        if (newStudents.length === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: `This fee is already assigned to all ${students.length} matching students` 
+            });
+        }
+
+        const studentFees = newStudents.map(student => ({
             student: student._id,
             feeStructure: feeStructure._id,
             totalAmount: feeStructure.amount,
@@ -127,33 +167,41 @@ export const assignFeeToStudents = async (req, res) => {
             transactions: []
         }));
 
-        // Use insertedIds to avoid duplicates error or use ordered: false
-        try {
-            const result = await StudentFee.insertMany(studentFees, { ordered: false });
-            res.status(201).json({ 
-                success: true, 
-                message: `Fee assigned to ${result.length} students successfully`,
-                assignedCount: result.length
-            });
-        } catch (insertError) {
-             // If some failed (likely duplicates), just report success count
-             // insertMany with ordered:false throws error but continues
-             const insertedCount = insertError.insertedDocs ? insertError.insertedDocs.length : 0;
-             if(insertedCount > 0){
-                 return res.status(201).json({ 
-                    success: true, 
-                    message: `Fee assigned to ${insertedCount} new students. (${students.length - insertedCount} already assigned)`,
-                    assignedCount: insertedCount
-                 });
-             } else {
-                 throw insertError; // If all failed, throw real error
-             }
-        }
+        const result = await StudentFee.insertMany(studentFees, { ordered: false });
+        
+        const alreadyCount = students.length - newStudents.length;
+        const message = alreadyCount > 0
+            ? `Fee assigned to ${result.length} new students. (${alreadyCount} already had this fee)`
+            : `Fee assigned to ${result.length} students successfully`;
+
+        res.status(201).json({ 
+            success: true, 
+            message,
+            assignedCount: result.length
+        });
 
     } catch (err) {
-        // Validation error for duplicate assignment handles gracefully above if using insertMany
+        console.error('assignFeeToStudents ERROR:', err);
         if (err.code === 11000) {
-             return res.status(400).json({ success: false, message: 'Fee already assigned to these students' });
+             // Race condition handling: Check if assignments now exist (idempotency)
+             try {
+                const count = await StudentFee.countDocuments({ 
+                    feeStructure: feeStructure._id,
+                    student: { $in: students.map(s => s._id) }
+                });
+                
+                if (count > 0) {
+                     return res.status(200).json({ 
+                        success: true, 
+                        message: `Fee verified for ${count} students. (Processed by concurrent request)`,
+                        assignedCount: count
+                     });
+                }
+             } catch (checkErr) {
+                 console.error('Error verifying fee assignment:', checkErr);
+             }
+
+             return res.status(400).json({ success: false, message: 'Duplicate fee assignment detected. Please refresh to see current status.' });
         }
         res.status(500).json({ success: false, message: err.message });
     }
@@ -269,7 +317,9 @@ export const studentPayFee = async (req, res) => {
             referenceId: referenceId || '',
             remarks: remarks || `Student payment via ${paymentMode}`,
             date: new Date(),
-            receiptNumber: `RCPT-${Date.now()}-${Math.floor(Math.random() * 10000)}`
+            receiptNumber: `RCPT-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+            receiptUrl: req.file ? req.file.path : undefined,
+            isVerified: false
         };
 
         feeRecord.transactions.push(newTransaction);
@@ -407,6 +457,94 @@ export const resolveExtensionRequest = async (req, res) => {
             data: request
         });
 
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+// @desc    Get fee analysis stats
+// @route   GET /api/fees/stats
+// @access  Admin
+export const getFeeAnalysis = async (req, res) => {
+    try {
+        const stats = await StudentFee.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    totalExpected: { $sum: "$totalAmount" },
+                    totalCollected: { $sum: "$paidAmount" },
+                    totalPending: { $sum: "$dueAmount" },
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+        
+        const statusStats = await StudentFee.aggregate([
+            {
+                $group: {
+                     _id: "$status",
+                     count: { $sum: 1 },
+                     amount: { $sum: "$totalAmount" } 
+                }
+            }
+        ]);
+
+        res.status(200).json({ 
+            success: true, 
+            data: {
+                overview: stats[0] || { totalExpected: 0, totalCollected: 0, totalPending: 0, count: 0 },
+                byStatus: statusStats
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+// @desc    Verify a fee payment transaction (Admin)
+// @route   PUT /api/fees/verify-payment/:feeId/:txnId
+// @access  Admin
+export const verifyPayment = async (req, res) => {
+    try {
+        const { feeId, txnId } = req.params;
+        const { isVerified, remarks } = req.body; // true to verify, false to unverify
+
+        const feeRecord = await StudentFee.findById(feeId);
+        if (!feeRecord) {
+            return res.status(404).json({ success: false, message: 'Fee record not found' });
+        }
+
+        const transaction = feeRecord.transactions.id(txnId);
+        if (!transaction) {
+            return res.status(404).json({ success: false, message: 'Transaction not found' });
+        }
+
+        // Update verification status
+        // If isVerified is provided, use it. Default to true if not provided (action implies verify)
+        transaction.isVerified = isVerified !== undefined ? isVerified : true;
+        
+        if (transaction.isVerified) {
+             transaction.verificationDate = new Date();
+             if (remarks) {
+                // Append or replace remarks? Let's append for audit trail
+                // transaction.remarks = (transaction.remarks || '') + ` [Verified: ${remarks}]`;
+                // Actually maybe just replace or add field? 
+                // Let's just update 'remarks' field if provided.
+                // But user might want to keep student remarks.
+                // Let's prepend verification note.
+                // Or just assume remarks passed here are Admin remarks.
+                // transaction.remarks = remarks; // Simple replacement
+             }
+        } else {
+            transaction.verificationDate = null;
+        }
+        
+        // If we want to store admin remarks separate from student remarks, we need schema change.
+        // For now, let's just save.
+
+        await feeRecord.save();
+
+        res.status(200).json({ success: true, message: 'Payment verification status updated', data: feeRecord });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

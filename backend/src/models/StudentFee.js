@@ -22,7 +22,18 @@ const transactionSchema = new mongoose.Schema({
   receiptNumber: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    sparse: true
+  },
+  receiptUrl: {
+    type: String // URL from Cloudinary
+  },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  verificationDate: {
+    type: Date
   },
   remarks: {
     type: String,

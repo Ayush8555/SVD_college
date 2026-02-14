@@ -1,18 +1,23 @@
+
 import express from 'express';
 import { protect, protectStudent, authorizeDesignation as authorize } from '../middleware/authMiddleware.js';
 import {
   createFeeStructure,
   getFeeStructures,
+  deleteFeeStructure,
   assignFeeToStudents,
   getMyDues,
   getStudentDuesAdmin,
   recordPayment,
-  deleteFeeStructure,
   studentPayFee,
   createExtensionRequest,
   getExtensionRequests,
-  resolveExtensionRequest
+  resolveExtensionRequest,
+  getFeeAnalysis,
+  verifyPayment
 } from '../controllers/feeController.js';
+
+import feeUpload from '../middleware/feeUploadMiddleware.js';
 
 const router = express.Router();
 
@@ -29,7 +34,7 @@ router.post('/assign', protect, authorize('Admin', 'Accountant', 'Principal'), a
 
 // Student Routes
 router.get('/my-dues', protectStudent, getMyDues);
-router.post('/student-pay', protectStudent, studentPayFee);
+router.post('/student-pay', protectStudent, feeUpload.single('receipt'), studentPayFee);
 
 // Extension Request Routes (Student)
 router.post('/extension-request', protectStudent, createExtensionRequest);
@@ -41,5 +46,6 @@ router.put('/extension-request/:id', protect, authorize('Admin', 'Accountant', '
 // Admin Student Fee Routes
 router.get('/student/:id', protect, authorize('Admin', 'Accountant', 'Principal'), getStudentDuesAdmin);
 router.post('/pay', protect, authorize('Admin', 'Accountant', 'Principal'), recordPayment);
+router.get('/stats', protect, authorize('Admin', 'Accountant', 'Principal'), getFeeAnalysis);
 
 export default router;

@@ -11,6 +11,7 @@ const StudentFeePortal = () => {
     const [showPayModal, setShowPayModal] = useState(false);
     const [selectedFee, setSelectedFee] = useState(null);
     const [payForm, setPayForm] = useState({ amount: '', paymentMode: 'Online', referenceId: '', remarks: '' });
+    const [receiptFile, setReceiptFile] = useState(null);
     const [payLoading, setPayLoading] = useState(false);
     const [paySuccess, setPaySuccess] = useState(null);
 
@@ -77,6 +78,7 @@ const StudentFeePortal = () => {
     const openPayModal = (fee) => {
         setSelectedFee(fee);
         setPayForm({ amount: fee.dueAmount, paymentMode: 'Online', referenceId: '', remarks: '' });
+        setReceiptFile(null);
         setPaySuccess(null);
         setShowPayModal(true);
     };
@@ -86,13 +88,17 @@ const StudentFeePortal = () => {
         if (!payForm.amount || payForm.amount <= 0) return;
         setPayLoading(true);
         try {
-            const res = await feeAPI.studentPay({
-                studentFeeId: selectedFee._id,
-                amount: Number(payForm.amount),
-                paymentMode: payForm.paymentMode,
-                referenceId: payForm.referenceId,
-                remarks: payForm.remarks
-            });
+            const formData = new FormData();
+            formData.append('studentFeeId', selectedFee._id);
+            formData.append('amount', payForm.amount);
+            formData.append('paymentMode', payForm.paymentMode);
+            formData.append('referenceId', payForm.referenceId);
+            formData.append('remarks', payForm.remarks);
+            if (receiptFile) {
+                formData.append('receipt', receiptFile);
+            }
+
+            const res = await feeAPI.studentPay(formData);
             setPaySuccess(res.data.receipt);
             setToast({ type: 'success', message: 'Payment recorded successfully!' });
             fetchMyDues();
@@ -346,6 +352,17 @@ const StudentFeePortal = () => {
                                         value={payForm.remarks}
                                         onChange={e => setPayForm({...payForm, remarks: e.target.value})}
                                     />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Upload Receipt (Optional)</label>
+                                    <input 
+                                        type="file" 
+                                        accept="image/*,.pdf"
+                                        className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                        onChange={e => setReceiptFile(e.target.files[0])}
+                                    />
+                                    <p className="text-xs text-gray-400 mt-1">Supported: JPG, PNG, PDF</p>
                                 </div>
 
                                 <button 

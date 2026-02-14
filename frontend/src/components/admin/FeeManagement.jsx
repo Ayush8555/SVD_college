@@ -13,18 +13,31 @@ const FeeManagement = () => {
   const [newStructure, setNewStructure] = useState({
     name: '',
     amount: '',
-    academicYear: '2024-2025',
+    academicYear: '2025-2026',
     department: 'B.Ed',
     semester: 1,
     dueDate: '',
     category: 'All',
-    description: ''
+    description: '',
+    month: 'N/A'
   });
+  
+  const [analysis, setAnalysis] = useState({ overview: null, byStatus: [] });
 
   // Fetch structures on load
   useEffect(() => {
     fetchStructures();
+    fetchStats();
   }, []);
+
+  const fetchStats = async () => {
+    try {
+      const res = await feeAPI.getFeeAnalysis();
+      setAnalysis(res.data.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchStructures = async () => {
     try {
@@ -52,8 +65,8 @@ const FeeManagement = () => {
       fetchStructures();
       // Reset form
       setNewStructure({
-        name: '', amount: '', academicYear: '2024-2025', department: 'B.Ed', 
-        semester: 1, dueDate: '', category: 'All', description: ''
+        name: '', amount: '', academicYear: '2025-2026', department: 'B.Ed', 
+        semester: 1, dueDate: '', category: 'All', description: '', month: 'N/A'
       });
     } catch (err) {
       showNotification('error', err.response?.data?.message || 'Creation failed');
@@ -75,6 +88,7 @@ const FeeManagement = () => {
         showNotification('success', 'Fee Structure deleted successfully');
         setDeleteModal({ show: false, id: null, cascade: false });
         fetchStructures();
+        fetchStats();
     } catch (err) {
         showNotification('error', err.response?.data?.message || 'Deletion failed');
     } finally {
@@ -193,6 +207,24 @@ const FeeManagement = () => {
         </div>
       )}
 
+      {/* Analysis Section */}
+      {analysis.overview && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+             <div className="bg-white/80 backdrop-blur-md p-4 rounded-xl shadow-sm border border-white/20">
+                 <p className="text-gray-500 text-sm">Total Expected</p>
+                 <p className="text-2xl font-bold text-gray-800">₹{analysis.overview.totalExpected.toLocaleString()}</p>
+             </div>
+             <div className="bg-white/80 backdrop-blur-md p-4 rounded-xl shadow-sm border border-white/20">
+                 <p className="text-gray-500 text-sm">Total Collected</p>
+                 <p className="text-2xl font-bold text-green-600">₹{analysis.overview.totalCollected.toLocaleString()}</p>
+             </div>
+             <div className="bg-white/80 backdrop-blur-md p-4 rounded-xl shadow-sm border border-white/20">
+                 <p className="text-gray-500 text-sm">Total Pending</p>
+                 <p className="text-2xl font-bold text-red-600">₹{analysis.overview.totalPending.toLocaleString()}</p>
+             </div>
+        </div>
+      )}
+
       {/* Content Area */}
       <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-6 min-h-[500px]">
         
@@ -250,6 +282,7 @@ const FeeManagement = () => {
                         </div>
                          <div className="flex items-center gap-2">
                           <span className='font-semibold'>Year: {struct.academicYear}</span>
+                          {struct.month !== 'N/A' && <span className='text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded'>{struct.month}</span>}
                         </div>
                       </div>
                     </div>
@@ -271,8 +304,8 @@ const FeeManagement = () => {
             
             Let's add the Assign Tab Logic here as well to be efficient.
         */}
-        {activeTab === 'assign' && <AssignFeeTab structures={structures} showNotification={showNotification} />}
-        {activeTab === 'payments' && <PaymentEntryTab showNotification={showNotification} />}
+        {activeTab === 'assign' && <AssignFeeTab structures={structures} showNotification={showNotification} fetchStats={fetchStats} />}
+        {activeTab === 'payments' && <PaymentEntryTab showNotification={showNotification} fetchStats={fetchStats} />}
 
       </div>
 
@@ -342,6 +375,57 @@ const FeeManagement = () => {
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                   <label className="block text-sm font-medium text-gray-700 mb-1">Academic Year</label>
+                   <select 
+                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                     value={newStructure.academicYear}
+                     onChange={e => setNewStructure({...newStructure, academicYear: e.target.value})}
+                   >
+                     {['2024-2025', '2025-2026', '2026-2027'].map(y => (
+                       <option key={y} value={y}>{y}</option>
+                     ))}
+                   </select>
+                </div>
+                <div>
+                   <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                   <select 
+                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                     value={newStructure.category}
+                     onChange={e => setNewStructure({...newStructure, category: e.target.value})}
+                   >
+                     {['All', 'General', 'OBC', 'SC', 'ST', 'EWS'].map(c => (
+                       <option key={c} value={c}>{c}</option>
+                     ))}
+                   </select>
+                </div>
+              </div>
+              
+              <div>
+                   <label className="block text-sm font-medium text-gray-700 mb-1">Month (Optional)</label>
+                   <select 
+                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                     value={newStructure.month}
+                     onChange={e => setNewStructure({...newStructure, month: e.target.value})}
+                   >
+                     {['N/A', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(m => (
+                       <option key={m} value={m}>{m}</option>
+                     ))}
+                   </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
+                <textarea 
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  rows="2"
+                  placeholder="e.g. Annual tuition fee for first year students"
+                  value={newStructure.description}
+                  onChange={e => setNewStructure({...newStructure, description: e.target.value})}
+                ></textarea>
+              </div>
+
               <div className="flex justify-end gap-3 mt-6">
                 <button 
                   type="button"
@@ -367,7 +451,7 @@ const FeeManagement = () => {
 };
 
 // Sub-Component for Assigning Fees
-const AssignFeeTab = ({ structures, showNotification }) => {
+const AssignFeeTab = ({ structures, showNotification, fetchStats }) => {
     const [selectedStructure, setSelectedStructure] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -380,6 +464,7 @@ const AssignFeeTab = ({ structures, showNotification }) => {
             setLoading(true);
             const res = await feeAPI.assignFees({ feeStructureId: selectedStructure });
             showNotification('success', res.data.message);
+            fetchStats();
         } catch (err) {
             showNotification('error', err.response?.data?.message || 'Assignment failed');
         } finally {
@@ -423,7 +508,7 @@ const AssignFeeTab = ({ structures, showNotification }) => {
 };
 
 // Sub-Component for Payment Recording
-const PaymentEntryTab = ({ showNotification }) => {
+const PaymentEntryTab = ({ showNotification, fetchStats }) => {
     const [rollNumber, setRollNumber] = useState('');
     const [studentFees, setStudentFees] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -490,6 +575,7 @@ const PaymentEntryTab = ({ showNotification }) => {
                 ...paymentData
             });
             showNotification('success', 'Payment Recorded Successfully');
+            fetchStats();
             // Refresh list
             const res = await feeAPI.getStudentDuesAdmin(rollNumber);
             setStudentFees(res.data.data);
@@ -499,6 +585,24 @@ const PaymentEntryTab = ({ showNotification }) => {
              showNotification('error', err.response?.data?.message || 'Payment failed');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleVerify = async (feeId, txnId) => {
+        try {
+            await feeAPI.verifyPayment(feeId, txnId, { isVerified: true });
+            showNotification('success', 'Payment Verified Successfully');
+            // Refresh list
+            const res = await feeAPI.getStudentDuesAdmin(rollNumber);
+            setStudentFees(res.data.data);
+            
+            // Update selected fee to reflect changes immediately in UI
+            if (selectedFee && selectedFee._id === feeId) {
+                const updatedFee = res.data.data.find(f => f._id === feeId);
+                setSelectedFee(updatedFee);
+            }
+        } catch (err) {
+             showNotification('error', err.response?.data?.message || 'Verification failed');
         }
     };
 
@@ -563,76 +667,122 @@ const PaymentEntryTab = ({ showNotification }) => {
                     </div>
 
                     {/* Payment Form */}
-                    <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 h-fit sticky top-6">
-                        <h3 className="font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                            <DollarSign size={18} /> Record Payment
-                        </h3>
-                        
-                        {!selectedFee ? (
-                            <p className="text-gray-400 text-sm text-center py-10">Select a fee from the left to record payment.</p>
-                        ) : (
-                            <form onSubmit={handlePayment} className="space-y-4">
-                                <div className="p-3 bg-white rounded border border-gray-200 text-sm mb-4">
-                                    <p className="text-gray-500">Paying for:</p>
-                                    <p className="font-bold text-gray-800">{selectedFee.feeStructure.name}</p>
-                                    <p className="text-xs text-red-500 mt-1">Due: ₹{selectedFee.dueAmount}</p>
-                                </div>
-
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Amount (₹)</label>
-                                    <input 
-                                        type="number" 
-                                        required
-                                        max={selectedFee.dueAmount}
-                                        className="w-full p-2 border rounded outline-none focus:border-blue-500"
-                                        value={paymentData.amount}
-                                        onChange={e => setPaymentData({...paymentData, amount: e.target.value})}
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-500 mb-1">Mode</label>
-                                        <select 
-                                            className="w-full p-2 border rounded outline-none focus:border-blue-500"
-                                            value={paymentData.paymentMode}
-                                            onChange={e => setPaymentData({...paymentData, paymentMode: e.target.value})}
-                                        >
-                                            <option>Cash</option>
-                                            <option>Online</option>
-                                            <option>Cheque</option>
-                                            <option>DD</option>
-                                        </select>
+                    <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 h-fit sticky top-6 space-y-6">
+                        <div>
+                            <h3 className="font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                                <DollarSign size={18} /> Record Payment
+                            </h3>
+                            
+                            {!selectedFee ? (
+                                <p className="text-gray-400 text-sm text-center py-10">Select a fee from the left to record payment or view history.</p>
+                            ) : (
+                                <form onSubmit={handlePayment} className="space-y-4">
+                                    <div className="p-3 bg-white rounded border border-gray-200 text-sm mb-4">
+                                        <p className="text-gray-500">Paying for:</p>
+                                        <p className="font-bold text-gray-800">{selectedFee.feeStructure.name}</p>
+                                        <p className="text-xs text-red-500 mt-1">Due: ₹{selectedFee.dueAmount}</p>
                                     </div>
+
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-500 mb-1">Ref ID / Cheque No</label>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">Amount (₹)</label>
                                         <input 
-                                            type="text" 
+                                            type="number" 
+                                            required
+                                            max={selectedFee.dueAmount}
                                             className="w-full p-2 border rounded outline-none focus:border-blue-500"
-                                            value={paymentData.referenceId}
-                                            onChange={e => setPaymentData({...paymentData, referenceId: e.target.value})}
+                                            value={paymentData.amount}
+                                            onChange={e => setPaymentData({...paymentData, amount: e.target.value})}
                                         />
                                     </div>
-                                </div>
-                                
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Remarks</label>
-                                    <textarea 
-                                        className="w-full p-2 border rounded outline-none focus:border-blue-500"
-                                        rows="2"
-                                        value={paymentData.remarks}
-                                        onChange={e => setPaymentData({...paymentData, remarks: e.target.value})}
-                                    ></textarea>
-                                </div>
 
-                                <button 
-                                    type="submit"
-                                    disabled={loading}
-                                    className="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium shadow-lg shadow-green-100 transition-colors"
-                                >
-                                    {loading ? 'Processing...' : `Confirm Payment of ₹${paymentData.amount}`}
-                                </button>
-                            </form>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-500 mb-1">Mode</label>
+                                            <select 
+                                                className="w-full p-2 border rounded outline-none focus:border-blue-500"
+                                                value={paymentData.paymentMode}
+                                                onChange={e => setPaymentData({...paymentData, paymentMode: e.target.value})}
+                                            >
+                                                <option>Cash</option>
+                                                <option>Online</option>
+                                                <option>Cheque</option>
+                                                <option>DD</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-500 mb-1">Ref ID / Cheque No</label>
+                                            <input 
+                                                type="text" 
+                                                className="w-full p-2 border rounded outline-none focus:border-blue-500"
+                                                value={paymentData.referenceId}
+                                                onChange={e => setPaymentData({...paymentData, referenceId: e.target.value})}
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">Remarks</label>
+                                        <textarea 
+                                            className="w-full p-2 border rounded outline-none focus:border-blue-500"
+                                            rows="2"
+                                            value={paymentData.remarks}
+                                            onChange={e => setPaymentData({...paymentData, remarks: e.target.value})}
+                                        ></textarea>
+                                    </div>
+
+                                    <button 
+                                        type="submit"
+                                        disabled={loading}
+                                        className="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium shadow-lg shadow-green-100 transition-colors"
+                                    >
+                                        {loading ? 'Processing...' : `Confirm Payment`}
+                                    </button>
+                                </form>
+                            )}
+                        </div>
+
+                        {/* Transaction History Section */}
+                        {selectedFee && selectedFee.transactions.length > 0 && (
+                            <div className="border-t pt-4">
+                                <h4 className="font-semibold text-gray-700 mb-3 text-sm">Transaction History</h4>
+                                <div className="space-y-3 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
+                                    {selectedFee.transactions.map((txn, idx) => (
+                                        <div key={idx} className="bg-white p-3 rounded border border-gray-200 text-sm">
+                                            <div className="flex justify-between items-start mb-1">
+                                                <span className="font-bold text-gray-800">₹{txn.amount}</span>
+                                                <span className="text-xs text-gray-500">{new Date(txn.date).toLocaleDateString()}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-xs text-gray-500">{txn.paymentMode}</span>
+                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${txn.isVerified ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                                    {txn.isVerified ? 'VERIFIED' : 'PENDING'}
+                                                </span>
+                                            </div>
+                                            
+                                            <div className="flex gap-2 mt-2">
+                                                {txn.receiptUrl && (
+                                                    <a 
+                                                        href={txn.receiptUrl} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="flex-1 text-center bg-blue-50 text-blue-600 py-1 rounded hover:bg-blue-100 text-xs font-medium"
+                                                    >
+                                                        View Receipt
+                                                    </a>
+                                                )}
+                                                {!txn.isVerified && (
+                                                    <button 
+                                                        onClick={() => handleVerify(selectedFee._id, txn._id)}
+                                                        className="flex-1 bg-green-50 text-green-600 py-1 rounded hover:bg-green-100 text-xs font-medium"
+                                                    >
+                                                        Verify
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         )}
                     </div>
                 </div>
