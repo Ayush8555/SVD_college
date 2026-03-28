@@ -1,0 +1,112 @@
+Note: Unnecessary use of -X or --request, POST is already inferred.
+* Uses proxy env variable NO_PROXY == '*.azureedge.net'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* Host vbspuresult.org.in:443 was resolved.
+* IPv6: (none)
+* IPv4: 13.202.148.148
+*   Trying 13.202.148.148:443...
+* Connected to vbspuresult.org.in (13.202.148.148) port 443
+* ALPN: curl offers h2,http/1.1
+* (304) (OUT), TLS handshake, Client hello (1):
+} [323 bytes data]
+*  CAfile: /etc/ssl/cert.pem
+*  CApath: none
+* (304) (IN), TLS handshake, Server hello (2):
+{ [94 bytes data]
+* TLSv1.2 (IN), TLS handshake, Certificate (11):
+{ [3318 bytes data]
+* TLSv1.2 (IN), TLS handshake, Server key exchange (12):
+{ [365 bytes data]
+* TLSv1.2 (IN), TLS handshake, Server finished (14):
+{ [4 bytes data]
+* TLSv1.2 (OUT), TLS handshake, Client key exchange (16):
+} [102 bytes data]
+* TLSv1.2 (OUT), TLS change cipher, Change cipher spec (1):
+} [1 bytes data]
+* TLSv1.2 (OUT), TLS handshake, Finished (20):
+} [16 bytes data]
+* TLSv1.2 (IN), TLS change cipher, Change cipher spec (1):
+{ [1 bytes data]
+* TLSv1.2 (IN), TLS handshake, Finished (20):
+{ [16 bytes data]
+* SSL connection using TLSv1.2 / ECDHE-RSA-AES256-GCM-SHA384 / [blank] / UNDEF
+* ALPN: server accepted h2
+* Server certificate:
+*  subject: CN=vbspuresult.org.in
+*  start date: Dec  4 00:00:00 2025 GMT
+*  expire date: Dec  4 23:59:59 2026 GMT
+*  subjectAltName: host "vbspuresult.org.in" matched cert's "vbspuresult.org.in"
+*  issuer: C=GB; O=Sectigo Limited; CN=Sectigo Public Server Authentication CA DV R36
+*  SSL certificate verify ok.
+* using HTTP/2
+* [HTTP/2] [1] OPENED stream for https://vbspuresult.org.in/Home/SemesterResult
+* [HTTP/2] [1] [:method: POST]
+* [HTTP/2] [1] [:scheme: https]
+* [HTTP/2] [1] [:authority: vbspuresult.org.in]
+* [HTTP/2] [1] [:path: /Home/SemesterResult]
+* [HTTP/2] [1] [user-agent: curl/8.7.1]
+* [HTTP/2] [1] [accept: */*]
+* [HTTP/2] [1] [content-length: 32]
+* [HTTP/2] [1] [content-type: application/x-www-form-urlencoded]
+> POST /Home/SemesterResult HTTP/2
+> Host: vbspuresult.org.in
+> User-Agent: curl/8.7.1
+> Accept: */*
+> Content-Length: 32
+> Content-Type: application/x-www-form-urlencoded
+> 
+} [32 bytes data]
+* upload completely sent off: 32 bytes
+< HTTP/2 302 
+< cache-control: private,no-cache, no-store, must-revalidate
+< pragma: no-cache
+< content-type: text/html; charset=utf-8
+< expires: 0
+* Need to rewind upload for next request
+< location: /Home/AcademicResults?ROLL_NO=24001&Password=2025-01-01
+< x-aspnetmvc-version: 5.2
+< x-aspnet-version: 4.0.30319
+< x-xss-protection: 1; mode=block
+< x-frame-options: SAMEORIGIN
+< x-content-type-options: nosniff
+< referrer-policy: strict-origin
+< access-control-allow-origin: *
+< access-control-allow-headers: Content-Type, X-Your-Extra-Header-Key
+< access-control-allow-methods: GET,POST
+< access-control-allow-credentials: true
+< permissions-policy: picture-in-picture=(), geolocation=(self https://vbspuresult.org.in/), camera=*
+< strict-transport-security: max-age=31536000; includeSubDomains
+< date: Tue, 10 Feb 2026 14:07:57 GMT
+< content-length: 176
+< 
+* Ignoring the response-body
+100   208  100   176  100    32    843    153 --:--:-- --:--:-- --:--:--  1000
+* Connection #0 to host vbspuresult.org.in left intact
+* Issue another request to this URL: 'https://vbspuresult.org.in/Home/AcademicResults?ROLL_NO=24001&Password=2025-01-01'
+* Switch from POST to GET
+* Uses proxy env variable NO_PROXY == '*.azureedge.net'
+* Found bundle for host: 0x99f028600 [can multiplex]
+* Re-using existing connection with host vbspuresult.org.in
+* [HTTP/2] [3] OPENED stream for https://vbspuresult.org.in/Home/AcademicResults?ROLL_NO=24001&Password=2025-01-01
+* [HTTP/2] [3] [:method: POST]
+* [HTTP/2] [3] [:scheme: https]
+* [HTTP/2] [3] [:authority: vbspuresult.org.in]
+* [HTTP/2] [3] [:path: /Home/AcademicResults?ROLL_NO=24001&Password=2025-01-01]
+* [HTTP/2] [3] [user-agent: curl/8.7.1]
+* [HTTP/2] [3] [accept: */*]
+> POST /Home/AcademicResults?ROLL_NO=24001&Password=2025-01-01 HTTP/2
+> Host: vbspuresult.org.in
+> User-Agent: curl/8.7.1
+> Accept: */*
+> 
+* Request completely sent off
+< HTTP/2 411 
+< content-type: text/html; charset=us-ascii
+< server: Microsoft-HTTPAPI/2.0
+< date: Tue, 10 Feb 2026 14:07:57 GMT
+< content-length: 344
+< 
+{ [344 bytes data]
+100   344  100   344    0     0   1386      0 --:--:-- --:--:-- --:--:--  1386
+* Connection #0 to host vbspuresult.org.in left intact
