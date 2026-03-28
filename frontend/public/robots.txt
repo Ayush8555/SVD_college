@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://svdgurukul.edu.in/sitemap.xml

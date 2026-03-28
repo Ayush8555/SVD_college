@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import Background3D from '../components/Background3D';
+
+// Lazy-load the heavy Three.js background so login form renders instantly
+const Background3D = lazy(() => import('../components/Background3D'));
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
@@ -27,8 +29,8 @@ const AdminLogin = () => {
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify({ ...admin, role: 'admin' }));
         
-        // Hard redirect to ensure state refresh
-        window.location.href = '/admin'; 
+        // Full reload to ensure admin dashboard picks up auth state
+        window.location.href = '/admin';
     } catch (err) {
         console.error('Login Error:', err);
         setError(err.response?.data?.message || 'Authentication failed. Please check credentials.');
@@ -40,7 +42,9 @@ const AdminLogin = () => {
   return (
     <div className="min-h-screen bg-slate-900 font-sans flex items-center justify-center relative overflow-hidden">
       <div className="fixed inset-0 z-0">
-         <Background3D />
+         <Suspense fallback={<div className="absolute inset-0 bg-slate-900" />}>
+           <Background3D />
+         </Suspense>
       </div>
 
       <div className="relative z-10 w-full max-w-md px-4">
